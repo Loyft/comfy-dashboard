@@ -155,8 +155,9 @@ textarea{min-height:140px;resize:vertical}
 <div id="panel"><div class="win"><header><i></i><i></i><i></i><span>widgets.conf</span></header><div class="body"><div id="toggles"></div><div class="row"><button class="pill" id="close">done</button></div></div></div></div>
 
 <script src="setup.js"></script>
+<script src="setup.local.js"></script><!-- optional local override -->
 <script>
-/* All personal data lives in setup.js. These are only fallbacks if it's missing. */
+/* Data lives in setup.js (with an optional local override). These are only fallbacks. */
 const CONFIG = Object.assign({
   name: "",
   searchUrl: "https://www.startpage.com/sp/search",
@@ -166,7 +167,7 @@ const CONFIG = Object.assign({
   wallpapers: ["dusk", "moss", "ink"],
   links: {},
   defaultWidgets: ["weather", "news", "progress", "notes", "todo", "timer"]
-}, window.SETUP);
+}, window.SETUP, window.SETUP_LOCAL);
 
 const $ = (s, r = document) => r.querySelector(s);
 const store = {
