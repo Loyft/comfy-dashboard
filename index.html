@@ -61,12 +61,24 @@ main{position:relative;z-index:2;max-width:1100px;margin:0 auto;padding:86px 14p
 .hero h1{margin:0;font:600 clamp(2rem,6vw,4rem)/1.05 var(--mono);letter-spacing:-.04em;text-shadow:0 4px 40px rgba(0,0,0,.35)}
 .hero h1 em{font-style:normal;color:var(--accent)}
 .hero p{margin:10px 0 0;opacity:.8}
-#search{display:flex;align-items:center;gap:12px;margin:26px auto 0;max-width:640px;padding:6px 8px 6px 20px;border-radius:999px;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:.2s}
-#search:focus-within{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 25%,transparent)}
-#search b{color:var(--accent)}
-#search input{flex:1;font:inherit;font-size:16px;background:none;border:0;color:var(--text);padding:11px 0;outline:none}
-#search input::placeholder{color:var(--muted)}
-#search button{font:inherit;border:0;border-radius:999px;background:var(--accent);color:var(--ink);padding:9px 18px;cursor:pointer;font-weight:600}
+.sb{display:flex;align-items:center;gap:12px;margin:26px auto 0;max-width:640px;padding:6px 8px 6px 20px;border-radius:999px;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:.2s}
+#ask{margin-top:12px;max-width:520px;padding-top:3px;padding-bottom:3px}
+#ask input{font-size:14px;padding:8px 0}
+#ask b{color:var(--accent2)}
+#ask button{background:var(--accent2)}
+.tog{position:relative;flex:none;width:34px;height:34px;padding:0;display:grid;place-items:center;font:inherit;font-size:13px;font-weight:600;color:var(--muted);background:none;border:0;border-radius:50%;cursor:pointer;transition:.15s}
+.tog:hover{color:var(--text);background:rgba(127,127,127,.18)}
+.tog::before,.tog::after{content:"";position:absolute;opacity:0;transition:.15s;pointer-events:none}
+.tog::before{inset:2px;border:2px solid var(--accent);border-radius:50%}
+.tog::after{left:50%;top:50%;width:2px;height:calc(100% - 4px);margin-left:-1px;margin-top:calc(-50% + 2px);background:var(--accent);transform:rotate(45deg)}
+.tog[aria-pressed=true]{color:var(--text)}
+.tog[aria-pressed=true]::before,.tog[aria-pressed=true]::after{opacity:1}
+.tog:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sb:focus-within{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 25%,transparent)}
+.sb b{color:var(--accent)}
+.sb input{flex:1;min-width:0;font:inherit;font-size:16px;background:none;border:0;color:var(--text);padding:11px 0;outline:none}
+.sb input::placeholder{color:var(--muted)}
+.sb>button:not(.tog){font:inherit;border:0;border-radius:999px;background:var(--accent);color:var(--ink);padding:9px 18px;cursor:pointer;font-weight:600}
 
 /* links */
 .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:26px}
@@ -130,7 +142,8 @@ textarea{min-height:140px;resize:vertical}
   <section class="hero">
     <h1 id="greeting"></h1>
     <p id="sub"></p>
-    <form id="search" method="get"><b>❯</b><input name="q" placeholder="search the web" autofocus autocomplete="off"><button>go</button></form>
+    <form id="search" class="sb" method="get"><b>❯</b><input id="q1" placeholder="search the web" autofocus autocomplete="off"><input type="hidden" name="q"><button type="button" id="noai" class="tog" aria-pressed="false" aria-label="Exclude AI-era results (before 2022 only)" title="Crossed out = only results from before 2022"><span>ai</span></button><button>go</button></form>
+    <form id="ask" class="sb" method="get"><b>✦</b><input name="q" placeholder="ask perplexity" autocomplete="off"><button>ask</button></form>
   </section>
 
   <div class="win"><header><i></i><i></i><i></i><span>~/links</span></header><div class="body"><div class="cols" id="links"></div></div></div>
@@ -146,6 +159,8 @@ textarea{min-height:140px;resize:vertical}
 const CONFIG = {
   name: "",                                          // shown in the greeting, e.g. "sam"
   searchUrl: "https://www.startpage.com/sp/search",  // any engine using ?q=
+  askUrl: "https://www.perplexity.ai/search",        // second search bar (AI answers); any ?q= endpoint
+  noAiBefore: "2022-01-01",                          // the "no ai" toggle limits results to before this date
   weather: { city: "Berlin", lat: 52.52, lon: 13.41 }, // coordinates: open-meteo.com
   wallpapers: ["dusk", "moss", "ink"],               // palettes defined in the CSS; first = default
   links: {                                           // group name -> [label, url]
@@ -191,6 +206,16 @@ function tick() {
 }
 tick(); setInterval(tick, 1000);
 $("#search").action = CONFIG.searchUrl;
+$("#ask").action = CONFIG.askUrl;
+/* "no ai": adds a before:<date> operator so results predate the AI boom (best-effort, depends on the engine honoring it) */
+let noAi = store.get("noai", false);
+const syncNoAi = () => $("#noai").setAttribute("aria-pressed", noAi);
+$("#noai").onclick = () => { noAi = !noAi; store.set("noai", noAi); syncNoAi(); $("#q1").focus(); };
+$("#search").addEventListener("submit", () => {
+  const q = $("#q1").value.trim();
+  $("#search [name=q]").value = noAi && q ? `${q} before:${CONFIG.noAiBefore}` : q;
+});
+syncNoAi();
 
 /* wallpaper: layered ridges, sun and stars generated as SVG from the palette's CSS variables */
 function paint() {
