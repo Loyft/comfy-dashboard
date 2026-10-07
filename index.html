@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Start</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%231e1b2e'/><circle cx='50' cy='46' r='24' fill='%23f5a97f'/><path d='M0 78 30 52 52 70 74 48 100 76V100H0Z' fill='%23181526'/></svg>">
+<style>
+/* The wallpaper is drawn in code (SVG) – no image files, nothing to license.
+   Palettes live in the [data-wp] blocks below; add your own. */
+:root,:root[data-wp=dusk]{
+  --sky1:#1a1633;--sky2:#5b3f7a;--sky3:#f0936b;--sun1:#ffd08a;--sun2:#ff7b8a;
+  --r0:#6d4a86;--r1:#52396f;--r2:#3a2a5a;--r3:#271d44;--r4:#171230;--star:#fff4e0;
+  --text:#ece6f5;--muted:#a79fc0;--accent:#f5a97f;--accent2:#c6a0f6;--green:#a6e3a1;--blue:#8aadf4;--pink:#f5bde6;
+  --panel:rgba(22,18,40,.62);--line:rgba(236,230,245,.14);--ink:#171230}
+:root[data-wp=moss]{
+  --sky1:#0e1a17;--sky2:#2f4a3c;--sky3:#d9b26f;--sun1:#f6e3a8;--sun2:#e0a458;
+  --r0:#4d6b52;--r1:#3b5642;--r2:#2b4234;--r3:#1d3026;--r4:#111f19;--star:#f4eed6;
+  --text:#e9efdf;--muted:#a3b39f;--accent:#e0b861;--accent2:#9fcf9a;--green:#b8d98b;--blue:#8fc1c9;--pink:#e8a79a;
+  --panel:rgba(15,28,22,.64);--line:rgba(233,239,223,.15);--ink:#111f19}
+:root[data-wp=ink]{
+  --sky1:#e9dcc3;--sky2:#efc9a6;--sky3:#e98a68;--sun1:#c8402f;--sun2:#c8402f;
+  --r0:#b5776b;--r1:#8f5a55;--r2:#6a4348;--r3:#472e38;--r4:#2c1d2a;--star:#fff;
+  --text:#2b1d26;--muted:#6e5560;--accent:#b8321f;--accent2:#6a4a8c;--green:#4d7a46;--blue:#3b6ea5;--pink:#b8475f;
+  --panel:rgba(250,240,224,.7);--line:rgba(43,29,38,.2);--ink:#fff}
+:root{--mono:ui-monospace,"JetBrains Mono","SF Mono",Menlo,Consolas,monospace}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--text);background:var(--sky1);font:14px/1.55 var(--mono);overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+::selection{background:var(--accent);color:var(--ink)}
+#wall{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+#grain{position:fixed;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;opacity:.14;mix-blend-mode:overlay}
+
+/* floating status bar */
+#top{position:fixed;z-index:5;top:14px;left:50%;transform:translateX(-50%);width:min(1100px,calc(100% - 28px));
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:7px 10px;border-radius:999px;
+  background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);font-size:13px}
+#top .l,#top .r{display:flex;gap:8px;align-items:center}
+#top .r{justify-content:flex-end}
+.ws{display:flex;gap:6px;padding:0 8px}
+.ws i{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.ws i:first-child{background:var(--accent);width:22px;border-radius:9px}
+#clock{font-weight:600;letter-spacing:.04em}
+#date{color:var(--muted)}
+.pill{font:inherit;font-size:12px;color:var(--text);background:rgba(127,127,127,.14);border:0;border-radius:999px;padding:5px 12px;cursor:pointer;transition:.15s}
+.pill:hover,.pill:focus-visible{background:var(--accent);color:var(--ink);outline:none}
+
+main{position:relative;z-index:2;max-width:1100px;margin:0 auto;padding:86px 14px 120px}
+
+/* windows */
+.win{background:var(--panel);border:1px solid var(--line);border-radius:14px;backdrop-filter:blur(16px) saturate(1.2);-webkit-backdrop-filter:blur(16px) saturate(1.2);box-shadow:0 18px 50px rgba(0,0,0,.28);overflow:hidden;break-inside:avoid;margin-bottom:16px}
+.win>header{display:flex;align-items:center;gap:7px;padding:10px 14px;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted)}
+.win>header i{width:11px;height:11px;border-radius:50%;background:#ff6b6b}
+.win>header i:nth-child(2){background:#ffcf5c}
+.win>header i:nth-child(3){background:#5ad47a}
+.win>header span{margin-left:8px}
+.win>.body{padding:18px 20px 20px}
+
+/* hero */
+.hero{padding:6vh 0 4vh;text-align:center}
+.hero h1{margin:0;font:600 clamp(2rem,6vw,4rem)/1.05 var(--mono);letter-spacing:-.04em;text-shadow:0 4px 40px rgba(0,0,0,.35)}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero p{margin:10px 0 0;opacity:.8}
+#search{display:flex;align-items:center;gap:12px;margin:26px auto 0;max-width:640px;padding:6px 8px 6px 20px;border-radius:999px;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:.2s}
+#search:focus-within{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 25%,transparent)}
+#search b{color:var(--accent)}
+#search input{flex:1;font:inherit;font-size:16px;background:none;border:0;color:var(--text);padding:11px 0;outline:none}
+#search input::placeholder{color:var(--muted)}
+#search button{font:inherit;border:0;border-radius:999px;background:var(--accent);color:var(--ink);padding:9px 18px;cursor:pointer;font-weight:600}
+
+/* links */
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:26px}
+.group h2{margin:0 0 10px;font-size:12px;font-weight:400;color:var(--muted)}
+.group h2::before{content:"~/";color:var(--accent2)}
+.group a{display:flex;align-items:center;gap:12px;padding:7px 10px;margin:0 -10px;border-radius:9px;transition:background .15s,transform .15s}
+.group a:hover,.group a:focus-visible{background:rgba(127,127,127,.18);transform:translateX(4px);outline:none}
+.g{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-weight:700;font-size:13px;color:var(--ink);flex:none;background:var(--accent)}
+.group a:nth-of-type(4n+2) .g{background:var(--accent2)}
+.group a:nth-of-type(4n+3) .g{background:var(--green)}
+.group a:nth-of-type(4n+4) .g{background:var(--blue)}
+.group a span.n{flex:1}
+.group a small{color:var(--muted);font-size:11px;opacity:0;transition:.15s}
+.group a:hover small,.group a:focus-visible small{opacity:1}
+
+.sect{display:flex;align-items:center;gap:12px;margin:34px 4px 14px;font-size:12px;color:var(--text);opacity:.8;text-shadow:0 1px 8px rgba(0,0,0,.3)}
+.sect::after{content:"";flex:1;height:1px;background:var(--line)}
+.widgets{columns:3 300px;column-gap:16px}
+.big{font:700 3.2rem/1 var(--mono);letter-spacing:-.05em}
+.muted{color:var(--muted)}
+.win ul{list-style:none;margin:0;padding:0}
+.news li{padding:8px 0;border-bottom:1px dashed var(--line)}
+.news li:last-child{border:0}
+.news a:hover{color:var(--accent)}
+.news small{display:block;color:var(--muted);font-size:11px}
+textarea,.win input[type=text]{width:100%;font:inherit;color:var(--text);background:rgba(127,127,127,.12);border:1px solid transparent;border-radius:10px;padding:10px 12px;outline:none}
+textarea:focus,.win input[type=text]:focus{border-color:var(--accent)}
+textarea{min-height:140px;resize:vertical}
+.todo li{display:flex;gap:10px;align-items:center;padding:5px 0}
+.todo li span{flex:1}
+.todo li.done span{text-decoration:line-through;color:var(--muted)}
+.todo li button{border:0;background:none;color:var(--muted);cursor:pointer;font:inherit}
+.todo input[type=checkbox]{accent-color:var(--accent)}
+.empty{color:var(--muted);margin:0 0 6px}
+.row{display:flex;gap:8px;margin-top:12px}
+.bar-row{margin:12px 0}
+.bar-row div{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:5px}
+.track{height:8px;border-radius:8px;background:rgba(127,127,127,.2);overflow:hidden}
+.track i{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,var(--accent2),var(--accent))}
+
+#panel{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:9}
+#panel.open{display:flex}
+#panel .win{width:340px;max-width:90vw;margin:0;background:var(--sky1)}
+#panel label{display:flex;gap:12px;padding:8px 0;cursor:pointer}
+#panel input{accent-color:var(--accent)}
+@media(max-width:700px){#top{grid-template-columns:auto 1fr}#top .l{display:none}#date{display:none}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<svg id="wall" aria-hidden="true" preserveAspectRatio="xMidYMax slice" viewBox="0 0 1600 900"></svg>
+<svg id="grain" aria-hidden="true"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 1.2 -.1"/></filter><rect width="100%" height="100%" filter="url(#n)"/></svg>
+
+<nav id="top">
+  <div class="l"><div class="ws"><i></i><i></i><i></i></div></div>
+  <div><span id="clock"></span> <span id="date"></span></div>
+  <div class="r"><button class="pill" id="wp" title="Change wallpaper">wallpaper</button><button class="pill" id="customize">widgets</button></div>
+</nav>
+
+<main>
+  <section class="hero">
+    <h1 id="greeting"></h1>
+    <p id="sub"></p>
+    <form id="search" method="get"><b>❯</b><input name="q" placeholder="search the web" autofocus autocomplete="off"><button>go</button></form>
+  </section>
+
+  <div class="win"><header><i></i><i></i><i></i><span>~/links</span></header><div class="body"><div class="cols" id="links"></div></div></div>
+
+  <div class="sect">widgets</div>
+  <section class="widgets" id="widgets"></section>
+</main>
+
+<div id="panel"><div class="win"><header><i></i><i></i><i></i><span>widgets.conf</span></header><div class="body"><div id="toggles"></div><div class="row"><button class="pill" id="close">done</button></div></div></div></div>
+
+<script>
+/* ============ CONFIGURE ME ============ */
+const CONFIG = {
+  name: "",                                          // shown in the greeting, e.g. "sam"
+  searchUrl: "https://www.startpage.com/sp/search",  // any engine using ?q=
+  weather: { city: "Berlin", lat: 52.52, lon: 13.41 }, // coordinates: open-meteo.com
+  wallpapers: ["dusk", "moss", "ink"],               // palettes defined in the CSS; first = default
+  links: {                                           // group name -> [label, url]
+    "daily": [
+      ["Proton Mail", "https://mail.proton.me"],
+      ["OpenStreetMap", "https://www.openstreetmap.org"],
+      ["Internet Archive", "https://archive.org"],
+      ["Wikipedia", "https://www.wikipedia.org"]
+    ],
+    "dev": [
+      ["GitHub", "https://github.com"],
+      ["Codeberg", "https://codeberg.org"],
+      ["Stack Overflow", "https://stackoverflow.com"],
+      ["Lobsters", "https://lobste.rs"]
+    ],
+    "media": [
+      ["YouTube", "https://www.youtube.com"],
+      ["Reddit", "https://www.reddit.com"],
+      ["Bandcamp", "https://bandcamp.com"],
+      ["Hacker News", "https://news.ycombinator.com"]
+    ]
+  },
+  // Widgets enabled by default. Remove an id here, or toggle in the UI.
+  defaultWidgets: ["weather", "news", "progress", "notes", "todo", "timer"]
+};
+/* ======================================= */
+
+const $ = (s, r = document) => r.querySelector(s);
+const store = {
+  get(k, d) { try { const v = localStorage.getItem("dash." + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem("dash." + k, JSON.stringify(v)); } catch {} }
+};
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+/* bar + greeting */
+function tick() {
+  const d = new Date(), h = d.getHours(), p = n => String(n).padStart(2, "0");
+  $("#clock").textContent = `${p(h)}:${p(d.getMinutes())}`;
+  $("#date").textContent = "· " + d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
+  const g = h < 5 ? "still up" : h < 12 ? "good morning" : h < 18 ? "good afternoon" : "good evening";
+  $("#greeting").innerHTML = g + (CONFIG.name ? `, <em>${esc(CONFIG.name)}</em>` : "<em>.</em>");
+  $("#sub").textContent = d.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+}
+tick(); setInterval(tick, 1000);
+$("#search").action = CONFIG.searchUrl;
+
+/* wallpaper: layered ridges, sun and stars generated as SVG from the palette's CSS variables */
+function paint() {
+  const cs = getComputedStyle(document.documentElement), v = n => cs.getPropertyValue(n).trim();
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const W = 1600, H = 900;
+  let s = `<defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${v("--sky1")}"/><stop offset=".55" stop-color="${v("--sky2")}"/><stop offset=".85" stop-color="${v("--sky3")}"/></linearGradient>
+    <linearGradient id="sun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${v("--sun1")}"/><stop offset="1" stop-color="${v("--sun2")}"/></linearGradient>
+    <linearGradient id="fog" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${v("--sky3")}" stop-opacity=".55"/><stop offset=".5" stop-color="${v("--sky3")}" stop-opacity="0"/></linearGradient>
+    <clipPath id="slits"><rect width="${W}" height="${H}"/></clipPath>
+    <mask id="stripes"><rect width="${W}" height="${H}" fill="#fff"/>${Array.from({ length: 6 }, (_, i) => `<rect x="0" y="${400 + i * 24}" width="${W}" height="${2 + i * 2.4}" fill="#000"/>`).join("")}</mask>
+    <filter id="blur"><feGaussianBlur stdDeviation="40"/></filter></defs>
+    <rect width="${W}" height="${H}" fill="url(#sky)"/>`;
+  for (let i = 0; i < 90; i++) s += `<circle cx="${(rnd() * W).toFixed(0)}" cy="${(rnd() * 420).toFixed(0)}" r="${(.5 + rnd() * 1.4).toFixed(1)}" fill="${v("--star")}" opacity="${(.15 + rnd() * .6).toFixed(2)}"/>`;
+  s += `<circle cx="1050" cy="440" r="200" fill="${v("--sun2")}" opacity=".35" filter="url(#blur)"/>
+        <circle cx="1050" cy="440" r="150" fill="url(#sun)" mask="url(#stripes)"/>`;
+  const ridge = (base, amp, f, color, fogOpacity) => {
+    const p1 = rnd() * 6, p2 = rnd() * 6, p3 = rnd() * 6; let d = `M0 ${H}`;
+    for (let x = 0; x <= W; x += 16) d += ` L${x} ${(base - amp * (Math.sin(x * f + p1) + .5 * Math.sin(x * f * 2.3 + p2) + .25 * Math.sin(x * f * 5.1 + p3))).toFixed(1)}`;
+    return `<path d="${d} L${W} ${H}Z" fill="${color}"/><path d="${d} L${W} ${H}Z" fill="url(#fog)" opacity="${fogOpacity}"/>`;
+  };
+  s += ridge(560, 55, .0042, v("--r0"), .9) + ridge(640, 70, .0036, v("--r1"), .6) + ridge(720, 80, .0031, v("--r2"), .35) + ridge(790, 70, .0027, v("--r3"), .15) + ridge(860, 55, .0022, v("--r4"), 0);
+  $("#wall").innerHTML = s;
+}
+const setWp = n => { document.documentElement.dataset.wp = n; paint(); };
+$("#wp").onclick = () => {
+  const list = CONFIG.wallpapers, n = list[(list.indexOf(document.documentElement.dataset.wp) + 1) % list.length];
+  setWp(n); store.set("wp", n);
+};
+
+/* links */
+$("#links").innerHTML = Object.entries(CONFIG.links).map(([g, items]) =>
+  `<div class="group"><h2>${esc(g)}</h2>${items.map(([n, u]) =>
+    `<a href="${esc(u)}"><span class="g">${esc(n[0].toUpperCase())}</span><span class="n">${esc(n)}</span><small>${esc(new URL(u).hostname.replace(/^www\./, ""))}</small></a>`).join("")}</div>`).join("");
+
+/* widgets: each has a title, a window-title `file`, and a render(body) function. Add your own here. */
+const WIDGETS = {
+  weather: { title: "Weather", file: "weather", async render(b) {
+    const { city, lat, lon } = CONFIG.weather;
+    b.innerHTML = `<div class="muted">loading…</div>`;
+    try {
+      const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto`);
+      const j = await r.json(), c = j.current;
+      const codes = { 0: "clear", 1: "mostly clear", 2: "partly cloudy", 3: "overcast", 45: "fog", 48: "fog", 51: "drizzle", 53: "drizzle", 55: "drizzle", 61: "rain", 63: "rain", 65: "heavy rain", 71: "snow", 73: "snow", 75: "heavy snow", 80: "showers", 81: "showers", 82: "heavy showers", 95: "thunderstorm", 96: "thunderstorm", 99: "thunderstorm" };
+      b.innerHTML = `<div class="muted">${esc(city.toLowerCase())}</div><div class="big">${Math.round(c.temperature_2m)}°</div><div>${codes[c.weather_code] || "—"}</div><div class="muted">h ${Math.round(j.daily.temperature_2m_max[0])}° · l ${Math.round(j.daily.temperature_2m_min[0])}° · wind ${Math.round(c.wind_speed_10m)} km/h</div>`;
+    } catch { b.innerHTML = `<div class="muted">couldn't load (offline?)</div>`; }
+  }},
+  news: { title: "Hacker News", file: "hn --top", async render(b) {
+    b.innerHTML = `<div class="muted">loading…</div>`;
+    try {
+      const ids = (await (await fetch("https://hacker-news.firebaseio.com/v0/topstories.json")).json()).slice(0, 7);
+      const items = await Promise.all(ids.map(i => fetch(`https://hacker-news.firebaseio.com/v0/item/${i}.json`).then(r => r.json())));
+      b.innerHTML = `<ul class="news">${items.map(i => `<li><a href="${esc(i.url || "https://news.ycombinator.com/item?id=" + i.id)}">${esc(i.title)}</a><small>${i.score} pts · ${i.descendants || 0} comments</small></li>`).join("")}</ul>`;
+    } catch { b.innerHTML = `<div class="muted">couldn't load (offline?)</div>`; }
+  }},
+  progress: { title: "Time progress", file: "uptime", render(b) {
+    const draw = () => {
+      const n = new Date(), y = n.getFullYear();
+      const day = (n - new Date(y, 0, 0)) / 864e5, len = (new Date(y + 1, 0, 1) - new Date(y, 0, 1)) / 864e5;
+      const wk = ((n.getDay() + 6) % 7 + (n.getHours() * 60 + n.getMinutes()) / 1440) / 7;
+      const dy = (n.getHours() * 60 + n.getMinutes()) / 1440;
+      const row = (l, x) => `<div class="bar-row"><div><span>${l}</span><span>${Math.floor(x * 100)}%</span></div><div class="track"><i style="width:${x * 100}%"></i></div></div>`;
+      b.innerHTML = row("today", dy) + row("this week", wk) + row(String(y), day / len);
+    };
+    draw(); return setInterval(draw, 60000);
+  }},
+  notes: { title: "Notes", file: "notes.txt", render(b) {
+    b.innerHTML = `<textarea placeholder="jot something down…"></textarea>`;
+    const t = $("textarea", b); t.value = store.get("notes", "");
+    t.oninput = () => store.set("notes", t.value);
+  }},
+  todo: { title: "To-do", file: "todo.md", render(b) {
+    let items = store.get("todo", []);
+    const draw = () => {
+      b.innerHTML = `${items.length ? "" : `<p class="empty">nothing to do. enjoy it.</p>`}<ul class="todo">${items.map((t, i) => `<li class="${t.done ? "done" : ""}"><input type="checkbox" data-i="${i}" ${t.done ? "checked" : ""}><span>${esc(t.text)}</span><button data-x="${i}" aria-label="Delete">×</button></li>`).join("")}</ul><form class="row"><input type="text" placeholder="add a task…"></form>`;
+      store.set("todo", items);
+      b.querySelectorAll("[data-i]").forEach(c => c.onchange = () => { items[c.dataset.i].done = c.checked; draw(); });
+      b.querySelectorAll("[data-x]").forEach(x => x.onclick = () => { items.splice(x.dataset.x, 1); draw(); });
+      $("form", b).onsubmit = e => { e.preventDefault(); const v = $("input", e.target).value.trim(); if (v) { items.push({ text: v, done: false }); draw(); $("form input", b).focus(); } };
+    };
+    draw();
+  }},
+  timer: { title: "Focus timer", file: "pomodoro", render(b) {
+    let left = 25 * 60, id = null;
+    const fmt = s => String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+    b.innerHTML = `<div class="big" data-t>${fmt(left)}</div><div class="row"><button class="pill" data-go>start</button><button class="pill" data-reset>reset</button></div>`;
+    const t = $("[data-t]", b), go = $("[data-go]", b);
+    go.onclick = () => {
+      if (id) { clearInterval(id); id = null; go.textContent = "start"; return; }
+      go.textContent = "pause";
+      id = setInterval(() => { t.textContent = fmt(--left); if (left <= 0) { clearInterval(id); id = null; go.textContent = "start"; left = 25 * 60; t.textContent = "done!"; } }, 1000);
+    };
+    $("[data-reset]", b).onclick = () => { clearInterval(id); id = null; left = 25 * 60; t.textContent = fmt(left); go.textContent = "start"; };
+    return () => clearInterval(id);
+  }}
+};
+
+/* widget manager */
+let enabled = store.get("widgets", CONFIG.defaultWidgets);
+const cleanups = {};
+function renderWidgets() {
+  const box = $("#widgets");
+  Object.values(cleanups).forEach(c => c && clearInterval(c));
+  box.innerHTML = "";
+  for (const id of Object.keys(WIDGETS).filter(k => enabled.includes(k))) {
+    const w = WIDGETS[id], el = document.createElement("div");
+    el.className = "win"; el.id = "w-" + id;
+    el.innerHTML = `<header><i></i><i></i><i></i><span>${esc(w.file)}</span></header><div class="body"></div>`;
+    box.appendChild(el);
+    const r = w.render($(".body", el));
+    if (r && !r.then) cleanups[id] = r;
+  }
+  if (!enabled.length) box.innerHTML = `<div class="muted">no widgets enabled. click “widgets” to add some.</div>`;
+}
+$("#toggles").innerHTML = Object.entries(WIDGETS).map(([id, w]) => `<label><input type="checkbox" value="${id}"> ${esc(w.title)}</label>`).join("");
+$("#toggles").onchange = () => {
+  enabled = [...document.querySelectorAll("#toggles input:checked")].map(i => i.value);
+  store.set("widgets", enabled); renderWidgets();
+};
+const sync = () => document.querySelectorAll("#toggles input").forEach(i => i.checked = enabled.includes(i.value));
+$("#customize").onclick = () => { sync(); $("#panel").classList.add("open"); };
+$("#close").onclick = () => $("#panel").classList.remove("open");
+$("#panel").onclick = e => { if (e.target.id === "panel") $("#panel").classList.remove("open"); };
+
+setWp(store.get("wp", CONFIG.wallpapers[0]));
+renderWidgets();
+</script>
+</body>
+</html>
