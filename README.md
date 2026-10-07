@@ -19,13 +19,14 @@ A cozy, single-file browser start page. One `index.html`, no build step, no depe
 
 ## Use it
 1. Download or clone this repo.
-2. Open `index.html` in your browser to try it.
-3. Set it as your homepage, using the file URL, e.g. `file:///path/to/comfy-dashboard/index.html`.
+2. Open `setup.js` and fill in your name, links, weather city and so on.
+3. Open `index.html` in your browser to try it.
+4. Set it as your homepage, using the file URL, e.g. `file:///path/to/comfy-dashboard/index.html`.
    - Firefox: Settings → Home → Custom URLs.
    - Chrome / Edge: Settings → On startup → Open a specific page (and Appearance → Show home button).
 
 ## Customize
-Edit the `CONFIG` block at the top of the `<script>` in `index.html`:
+All your data lives in **`setup.js`**, a plain list of variables. Edit it, save, reload the page. To share your setup, send that one file; to import someone else's, drop it in place of yours.
 
 | Option | What it does |
 |---|---|
@@ -38,9 +39,11 @@ Edit the `CONFIG` block at the top of the `<script>` in `index.html`:
 | `links` | Groups of `[label, url]` pairs |
 | `defaultWidgets` | Widgets enabled on first load |
 
-**Add a palette:** copy a `:root[data-wp=…]` block in the CSS, change the colors, and add its name to `wallpapers`.
+If `setup.js` is missing or leaves something out, sensible defaults are used.
 
-**Add a widget:** add an entry to `WIDGETS` with a `title`, a window-title `file`, and a `render(body)` function. It then appears in the widgets panel automatically. Return a timer id from `render` if it needs cleaning up.
+**Add a palette:** copy a `:root[data-wp=…]` block in the CSS of `index.html`, change the colors, and add its name to `wallpapers` in `setup.js`.
+
+**Add a widget:** add an entry to `WIDGETS` in `index.html` with a `title`, a window-title `file`, and a `render(body)` function. It then appears in the widgets panel automatically. Return a timer id from `render` if it needs cleaning up.
 
 ## Privacy
 The weather widget calls `api.open-meteo.com` and the news widget calls `hacker-news.firebaseio.com`. Turn those widgets off and the page makes no network requests at all.

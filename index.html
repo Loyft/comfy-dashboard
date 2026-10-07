@@ -154,39 +154,19 @@ textarea{min-height:140px;resize:vertical}
 
 <div id="panel"><div class="win"><header><i></i><i></i><i></i><span>widgets.conf</span></header><div class="body"><div id="toggles"></div><div class="row"><button class="pill" id="close">done</button></div></div></div></div>
 
+<script src="setup.js"></script>
 <script>
-/* ============ CONFIGURE ME ============ */
-const CONFIG = {
-  name: "",                                          // shown in the greeting, e.g. "sam"
-  searchUrl: "https://www.startpage.com/sp/search",  // any engine using ?q=
-  askUrl: "https://www.perplexity.ai/search",        // second search bar (AI answers); any ?q= endpoint
-  noAiBefore: "2022-01-01",                          // the "no ai" toggle limits results to before this date
-  weather: { city: "Berlin", lat: 52.52, lon: 13.41 }, // coordinates: open-meteo.com
-  wallpapers: ["dusk", "moss", "ink"],               // palettes defined in the CSS; first = default
-  links: {                                           // group name -> [label, url]
-    "daily": [
-      ["Proton Mail", "https://mail.proton.me"],
-      ["OpenStreetMap", "https://www.openstreetmap.org"],
-      ["Internet Archive", "https://archive.org"],
-      ["Wikipedia", "https://www.wikipedia.org"]
-    ],
-    "dev": [
-      ["GitHub", "https://github.com"],
-      ["Codeberg", "https://codeberg.org"],
-      ["Stack Overflow", "https://stackoverflow.com"],
-      ["Lobsters", "https://lobste.rs"]
-    ],
-    "media": [
-      ["YouTube", "https://www.youtube.com"],
-      ["Reddit", "https://www.reddit.com"],
-      ["Bandcamp", "https://bandcamp.com"],
-      ["Hacker News", "https://news.ycombinator.com"]
-    ]
-  },
-  // Widgets enabled by default. Remove an id here, or toggle in the UI.
+/* All personal data lives in setup.js. These are only fallbacks if it's missing. */
+const CONFIG = Object.assign({
+  name: "",
+  searchUrl: "https://www.startpage.com/sp/search",
+  askUrl: "https://www.perplexity.ai/search",
+  noAiBefore: "2022-01-01",
+  weather: { city: "Berlin", lat: 52.52, lon: 13.41 },
+  wallpapers: ["dusk", "moss", "ink"],
+  links: {},
   defaultWidgets: ["weather", "news", "progress", "notes", "todo", "timer"]
-};
-/* ======================================= */
+}, window.SETUP);
 
 const $ = (s, r = document) => r.querySelector(s);
 const store = {
