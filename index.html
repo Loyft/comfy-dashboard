@@ -71,13 +71,29 @@ a{color:inherit;text-decoration:none}
   background:var(--panel);border:var(--bw) var(--bs) var(--line);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));font-size:13px}
 #top .l,#top .r{display:flex;gap:8px;align-items:center}
 #top .r{justify-content:flex-end}
-.ws{display:flex;gap:6px;padding:0 8px}
-.ws i{width:9px;height:9px;border-radius:50%;background:var(--line)}
-.ws i:first-child{background:var(--accent);width:22px;border-radius:9px}
+#wx{padding-left:10px;white-space:nowrap;font-size:13px}
+#wx small{color:var(--muted);font-size:12px}
 #clock{font-weight:600;letter-spacing:.04em}
 #date{color:var(--muted)}
 .pill{font:inherit;font-size:12px;color:var(--text);background:rgba(127,127,127,.14);border:0;border-radius:var(--pill);padding:5px 12px;cursor:pointer;transition:.15s}
-.pill:hover,.pill:focus-visible{background:var(--accent);color:var(--ink);outline:none}
+.pill:hover,.pill:focus-visible{background-color:var(--accent);color:var(--ink);outline:none}
+select.pill{appearance:none;-webkit-appearance:none;font-family:inherit;padding-right:26px;
+  background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);
+  background-position:calc(100% - 14px) 52%,calc(100% - 9px) 52%;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+select.pill option{background:var(--sky1);color:var(--text)}
+.hnr{margin:0 0 10px}
+/* theme dropdown: styled by the active theme's variables, so hovering an entry (which previews that theme) restyles it too */
+.tsel{position:relative}
+#wpb{width:130px;display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left}
+#wpb span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#wpb b{font-weight:400;opacity:.7}
+#wpm{position:absolute;right:0;top:calc(100% + 10px);width:180px;margin:0;padding:6px;list-style:none;z-index:8;
+  background:color-mix(in srgb,var(--sky1) 90%,transparent);border:var(--bw) var(--bs) var(--line);border-radius:var(--rad);
+  box-shadow:var(--shadow);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);clip-path:var(--clip)}
+#wpm li{display:flex;justify-content:space-between;align-items:center;height:34px;padding:0 12px;border-radius:min(var(--rad),8px);cursor:pointer;font-size:13px;color:var(--text)}
+#wpm li[aria-selected=true]::after{content:"✓";color:var(--accent)}
+#wpm li:hover,#wpm li:focus{background:var(--accent);color:var(--ink);outline:none}
+#wpm li:hover::after,#wpm li:focus::after{color:var(--ink)}
 
 main{position:relative;z-index:2;max-width:1100px;margin:0 auto;padding:86px 14px 120px}
 
@@ -164,7 +180,7 @@ textarea{min-height:140px;resize:vertical}
 #panel .win{width:340px;max-width:90vw;margin:0;background:var(--sky1)}
 #panel label{display:flex;gap:12px;padding:8px 0;cursor:pointer}
 #panel input{accent-color:var(--accent)}
-@media(max-width:700px){#top{grid-template-columns:auto 1fr}#top .l{display:none}#date{display:none}}
+@media(max-width:700px){#date,#wx small{display:none}#wx{padding-left:4px}#wpb{width:104px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -174,9 +190,9 @@ textarea{min-height:140px;resize:vertical}
 <svg id="grain" aria-hidden="true"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 1.2 -.1"/></filter><rect width="100%" height="100%" filter="url(#n)"/></svg>
 
 <nav id="top">
-  <div class="l"><div class="ws"><i></i><i></i><i></i></div></div>
+  <div class="l"><span id="wx" title="weather"></span></div>
   <div><span id="clock"></span> <span id="date"></span></div>
-  <div class="r"><button class="pill" id="wp" title="Change theme">theme</button><button class="pill" id="customize">widgets</button></div>
+  <div class="r"><div class="tsel"><button type="button" class="pill" id="wpb" aria-haspopup="listbox" aria-expanded="false" title="Theme"><span></span><b>▾</b></button><ul id="wpm" role="listbox" aria-label="Theme" hidden></ul></div><button class="pill" id="customize">widgets</button></div>
 </nav>
 
 <main>
@@ -205,10 +221,11 @@ const CONFIG = Object.assign({
   askUrl: "https://www.perplexity.ai/search",
   noAiBefore: "2022-01-01",
   favicons: true,
+  hnRange: "front",
   weather: { city: "Berlin", lat: 52.52, lon: 13.41 },
   greetings: {},
   links: {},
-  defaultWidgets: ["weather", "news", "progress", "notes", "todo", "timer"]
+  defaultWidgets: ["news", "progress", "notes", "todo", "timer"]
 }, window.SETUP, window.SETUP_LOCAL);
 const ALL_THEMES = ["dusk", "moss", "ink", "matrix", "minimal", "artist", "cyber", "medieval", "sketch"];
 const THEMES = CONFIG.themes || CONFIG.wallpapers || ALL_THEMES;
@@ -227,10 +244,23 @@ function tick() {
   $("#clock").textContent = `${p(h)}:${p(d.getMinutes())}`;
   $("#date").textContent = "· " + d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
   const g = h < 5 ? GREET.night : h < 12 ? GREET.morning : h < 18 ? GREET.afternoon : GREET.evening;
-  $("#greeting").innerHTML = g + (CONFIG.name ? `, <em>${esc(CONFIG.name)}</em>` : "<em>.</em>");
+  $("#greeting").innerHTML = esc(g.charAt(0).toUpperCase() + g.slice(1)) + (CONFIG.name ? `, <em>${esc(CONFIG.name)}</em>` : "<em>.</em>");
   $("#sub").textContent = d.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" });
 }
 tick(); setInterval(tick, 1000);
+
+/* weather lives in the top bar (not a widget) */
+async function loadWx() {
+  const { city, lat, lon } = CONFIG.weather, el = $("#wx");
+  try {
+    const j = await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto`)).json();
+    const c = j.current.weather_code;
+    const [icon, label] = c <= 1 ? ["☀", "clear"] : c === 2 ? ["⛅", "partly cloudy"] : c === 3 ? ["☁", "overcast"] : c < 50 ? ["≋", "fog"] : c < 70 || (c >= 80 && c < 90) ? ["☂", "rain"] : c < 80 ? ["❄", "snow"] : ["⚡", "thunderstorm"];
+    el.innerHTML = `${icon} ${Math.round(j.current.temperature_2m)}° <small>${esc(label)} · ${esc(city.toLowerCase())}</small>`;
+    el.title = `${city}: ${label}, high ${Math.round(j.daily.temperature_2m_max[0])}° / low ${Math.round(j.daily.temperature_2m_min[0])}°, wind ${Math.round(j.current.wind_speed_10m)} km/h`;
+  } catch { el.textContent = ""; }
+}
+loadWx(); setInterval(loadWx, 15 * 60 * 1000);
 $("#search").action = CONFIG.searchUrl;
 $("#ask").action = CONFIG.askUrl;
 /* "no ai": adds a before:<date> operator so results predate the AI boom (best-effort, depends on the engine honoring it) */
@@ -387,11 +417,31 @@ function paint() {
   $("#wall").innerHTML = (PAINT[THEME_ART[t] || t] || PAINT.landscape)(c);
   if (t === "matrix") stopFx = rain();
 }
-const setWp = n => { document.documentElement.dataset.wp = n; $("#wp").textContent = "theme · " + n; paint(); };
-$("#wp").onclick = () => {
-  const n = THEMES[(THEMES.indexOf(document.documentElement.dataset.wp) + 1) % THEMES.length];
-  setWp(n); store.set("wp", n);
-};
+const setWp = n => { document.documentElement.dataset.wp = n; paint(); };
+/* theme dropdown: hovering (or arrowing to) an entry previews that theme, clicking applies it */
+const menu = $("#wpm"), tbtn = $("#wpb");
+let committed = THEMES[0], pt;
+menu.innerHTML = THEMES.map(n => `<li role="option" tabindex="-1" data-t="${esc(n)}">${esc(n)}</li>`).join("");
+const lis = () => [...menu.querySelectorAll("li")];
+const markCur = () => lis().forEach(li => li.setAttribute("aria-selected", li.dataset.t === committed));
+const preview = n => { clearTimeout(pt); pt = setTimeout(() => { if (document.documentElement.dataset.wp !== n) setWp(n); }, 50); };
+const openMenu = () => { menu.hidden = false; tbtn.setAttribute("aria-expanded", "true"); markCur(); menu.querySelector(`[data-t="${committed}"]`).focus(); };
+const closeMenu = () => { if (menu.hidden) return; menu.hidden = true; tbtn.setAttribute("aria-expanded", "false"); preview(committed); };
+const commitWp = n => { committed = n; clearTimeout(pt); setWp(n); tbtn.firstElementChild.textContent = n; store.set("wp", n); markCur(); closeMenu(); tbtn.focus(); };
+tbtn.onclick = () => menu.hidden ? openMenu() : closeMenu();
+menu.addEventListener("mouseover", e => { const li = e.target.closest("li"); if (li) { li.focus({ preventScroll: true }); preview(li.dataset.t); } });
+menu.addEventListener("focusin", e => { const li = e.target.closest("li"); if (li) preview(li.dataset.t); });
+menu.addEventListener("mouseleave", () => preview(committed));
+menu.addEventListener("click", e => { const li = e.target.closest("li"); if (li) commitWp(li.dataset.t); });
+menu.addEventListener("keydown", e => {
+  const items = lis(), i = items.indexOf(document.activeElement);
+  if (e.key === "ArrowDown") { e.preventDefault(); items[(i + 1) % items.length].focus(); }
+  else if (e.key === "ArrowUp") { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+  else if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (i >= 0) commitWp(items[i].dataset.t); }
+  else if (e.key === "Escape") { e.preventDefault(); closeMenu(); tbtn.focus(); }
+  else if (e.key === "Tab") closeMenu();
+});
+document.addEventListener("click", e => { if (!e.target.closest(".tsel")) closeMenu(); });
 
 /* links */
 $("#links").innerHTML = Object.entries(CONFIG.links).map(([g, items]) =>
@@ -403,23 +453,29 @@ $("#links").innerHTML = Object.entries(CONFIG.links).map(([g, items]) =>
 
 /* widgets: each has a title, a window-title `file`, and a render(body) function. Add your own here. */
 const WIDGETS = {
-  weather: { title: "Weather", file: "weather", async render(b) {
-    const { city, lat, lon } = CONFIG.weather;
-    b.innerHTML = `<div class="muted">loading…</div>`;
-    try {
-      const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto`);
-      const j = await r.json(), c = j.current;
-      const codes = { 0: "clear", 1: "mostly clear", 2: "partly cloudy", 3: "overcast", 45: "fog", 48: "fog", 51: "drizzle", 53: "drizzle", 55: "drizzle", 61: "rain", 63: "rain", 65: "heavy rain", 71: "snow", 73: "snow", 75: "heavy snow", 80: "showers", 81: "showers", 82: "heavy showers", 95: "thunderstorm", 96: "thunderstorm", 99: "thunderstorm" };
-      b.innerHTML = `<div class="muted">${esc(city.toLowerCase())}</div><div class="big">${Math.round(c.temperature_2m)}°</div><div>${codes[c.weather_code] || "—"}</div><div class="muted">h ${Math.round(j.daily.temperature_2m_max[0])}° · l ${Math.round(j.daily.temperature_2m_min[0])}° · wind ${Math.round(c.wind_speed_10m)} km/h</div>`;
-    } catch { b.innerHTML = `<div class="muted">couldn't load (offline?)</div>`; }
-  }},
   news: { title: "Hacker News", file: "hn --top", async render(b) {
-    b.innerHTML = `<div class="muted">loading…</div>`;
-    try {
-      const ids = (await (await fetch("https://hacker-news.firebaseio.com/v0/topstories.json")).json()).slice(0, 7);
-      const items = await Promise.all(ids.map(i => fetch(`https://hacker-news.firebaseio.com/v0/item/${i}.json`).then(r => r.json())));
-      b.innerHTML = `<ul class="news">${items.map(i => `<li><a href="${esc(i.url || "https://news.ycombinator.com/item?id=" + i.id)}">${esc(i.title)}</a><small>${i.score} pts · ${i.descendants || 0} comments</small></li>`).join("")}</ul>`;
-    } catch { b.innerHTML = `<div class="muted">couldn't load (offline?)</div>`; }
+    const ranges = { front: ["front page", 0], hour: ["top · past hour", 3600], day: ["top · today", 86400], week: ["top · this week", 604800], month: ["top · this month", 2592000] };
+    let range = store.get("hnrange", CONFIG.hnRange); if (!ranges[range]) range = "front";
+    b.innerHTML = `<select class="pill hnr" aria-label="Time range">${Object.entries(ranges).map(([k, [l]]) => `<option value="${k}"${k === range ? " selected" : ""}>${l}</option>`).join("")}</select><div class="hnl"></div>`;
+    const list = $(".hnl", b);
+    const load = async () => {
+      list.innerHTML = `<div class="muted">loading…</div>`;
+      try {
+        let items;
+        if (range === "front") {   // the live front page
+          const ids = (await (await fetch("https://hacker-news.firebaseio.com/v0/topstories.json")).json()).slice(0, 7);
+          items = (await Promise.all(ids.map(i => fetch(`https://hacker-news.firebaseio.com/v0/item/${i}.json`).then(r => r.json()))))
+            .map(i => ({ id: i.id, title: i.title, url: i.url, points: i.score, comments: i.descendants || 0 }));
+        } else {                   // best stories of a time window (HN Algolia search)
+          const since = Math.floor(Date.now() / 1000) - ranges[range][1];
+          const j = await (await fetch(`https://hn.algolia.com/api/v1/search?tags=story&numericFilters=created_at_i%3E${since}&hitsPerPage=7`)).json();
+          items = j.hits.map(h => ({ id: h.objectID, title: h.title, url: h.url, points: h.points || 0, comments: h.num_comments || 0 }));
+        }
+        list.innerHTML = items.length ? `<ul class="news">${items.map(i => `<li><a href="${esc(i.url || "https://news.ycombinator.com/item?id=" + i.id)}">${esc(i.title)}</a><small>${i.points} pts · ${i.comments} comments</small></li>`).join("")}</ul>` : `<div class="muted">nothing found</div>`;
+      } catch { list.innerHTML = `<div class="muted">couldn't load (offline?)</div>`; }
+    };
+    $(".hnr", b).onchange = e => { range = e.target.value; store.set("hnrange", range); load(); };
+    load();
   }},
   progress: { title: "Time progress", file: "uptime", render(b) {
     const draw = () => {
@@ -490,7 +546,7 @@ $("#customize").onclick = () => { sync(); $("#panel").classList.add("open"); };
 $("#close").onclick = () => $("#panel").classList.remove("open");
 $("#panel").onclick = e => { if (e.target.id === "panel") $("#panel").classList.remove("open"); };
 
-{ const saved = store.get("wp", THEMES[0]); setWp(THEMES.includes(saved) ? saved : THEMES[0]); }
+{ const saved = store.get("wp", THEMES[0]); committed = THEMES.includes(saved) ? saved : THEMES[0]; setWp(committed); tbtn.firstElementChild.textContent = committed; markCur(); }
 renderWidgets();
 </script>
 </body>

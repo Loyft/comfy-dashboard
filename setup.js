@@ -9,7 +9,8 @@ window.SETUP = {
   askUrl: "https://www.perplexity.ai/search",        // second search bar (AI answers); any ?q= endpoint
   noAiBefore: "2022-01-01",                          // the "no ai" toggle limits results to before this date
   favicons: true,                                    // true = show each site's own favicon (loaded from that site); false = letter badges only
-  weather: { city: "Berlin", lat: 52.52, lon: 13.41 }, // coordinates: open-meteo.com
+  hnRange: "front",                                  // Hacker News widget: front | hour | day | week | month
+  weather: { city: "Berlin", lat: 52.52, lon: 13.41 }, // shown in the top bar; coordinates: open-meteo.com
   themes: ["dusk", "moss", "ink", "matrix", "minimal", "artist", "cyber", "medieval", "sketch"], // the theme button cycles through these; first = default
   greetings: {                                       // text of the greeting by time of day (any language)
     night: "still up", morning: "good morning", afternoon: "good afternoon", evening: "good evening"
@@ -35,5 +36,5 @@ window.SETUP = {
     ]
   },
   // Widgets enabled by default. Remove an id here, or toggle in the UI.
-  defaultWidgets: ["weather", "news", "progress", "notes", "todo", "timer"]
+  defaultWidgets: ["news", "progress", "notes", "todo", "timer"]
 };
