@@ -12,6 +12,8 @@ window.SETUP = {
   favicons: true,                                    // true = show each site's own favicon (loaded from that site); false = letter badges only
   newTab: true,                                      // true = links open in a new tab; false = same tab
   hnRange: "front",                                  // Hacker News widget: front | hour | day | week | month
+  pondHnRange: "day",                                // pond theme sidebar: front | hour | day | week | month (fixed there; change it here or in edit mode)
+  pondHnPos: null,                                   // pond sidebar position as {x, y} fractions of the window; set it by dragging in edit mode (null = default left side)
   pondVideo: "auto",                                 // pond theme video quality: auto | 720p | 1080p | 1440p | 4K
   pondVideos: [                                      // video files for the pond theme (you provide them; put them in assets/)
     { label: "720p",  width: 1280, src: "assets/pond-720.mp4" },

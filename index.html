@@ -73,9 +73,40 @@
 #hello.txt{font:italic 300 clamp(1.3rem,2.6vw,1.75rem)/1.15 var(--head);white-space:nowrap;text-shadow:0 0 22px rgba(61,224,168,.55),0 1px 12px rgba(0,0,0,.8);line-height:1.15}
 #hello.txt em{font-style:normal;color:var(--accent)}
 :root[data-wp=pond] #editbtn .pl{display:none}
+/* pond: Hacker News becomes a hand-lettered sidebar on the left: no window, no background */
+.hw{display:none}
+.hw svg{display:block;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 5px rgba(0,0,0,.85)) drop-shadow(0 0 12px rgba(0,0,0,.5))}
+:root[data-wp=pond] .hnr{display:none}
+:root[data-wp=pond] .hw{display:block}
+:root[data-wp=pond] .hw + .plain{display:none}
+:root[data-wp=pond] .news li{border:0;padding:0 0 15px;opacity:.68;transition:opacity .2s}
+:root[data-wp=pond] .news li:hover,:root[data-wp=pond] .news li:focus-within{opacity:1}
+:root[data-wp=pond] .news a{display:block}
+:root[data-wp=pond] .news a:hover .hw.t svg{stroke:var(--accent)}
+:root[data-wp=pond] .news small{display:none}   /* the sidebar shows titles only */
+:root[data-wp=pond] #w-news{position:fixed;z-index:3;left:var(--hn-x,26px);top:var(--hn-y,var(--pond-hello-top,72px));width:226px;max-height:calc(100vh - var(--hn-y,var(--pond-hello-top,72px)) - 18px);margin:0;overflow-x:hidden;overflow-y:auto;scrollbar-width:none;background:none;border:0;border-radius:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;clip-path:none}
+:root[data-wp=pond] #w-news::-webkit-scrollbar{display:none}
+/* edit mode: "move" lets you drag the sidebar anywhere (the position is remembered) */
+:root.hndrag[data-wp=pond] #w-news{outline:1.5px dashed var(--accent);outline-offset:8px;cursor:grab;user-select:none;touch-action:none;z-index:6}
+:root.hndrag[data-wp=pond] #w-news.dragging{cursor:grabbing}
+:root.hndrag[data-wp=pond] #w-news a{pointer-events:none}
+/* only Hacker News enabled: no widgets divider, and the page is fitted to the window (no scrollbar) */
+:root[data-wp=pond].hnonly .sect{display:none}
+:root.pondfit,:root.pondfit body{height:100%;overflow:hidden}
+:root.pondfit main{padding-bottom:16px}
+:root.pondfit .hero{padding-bottom:10px}
+:root[data-wp=pond].hnonly #linksbox>header{padding:calc(10px * var(--fit,1)) 14px}
+:root[data-wp=pond].hnonly #linksbox>.body{padding:calc(18px * var(--fit,1)) 20px calc(20px * var(--fit,1))}
+:root[data-wp=pond].hnonly #linksbox .group h2{margin-bottom:calc(10px * var(--fit,1))}
+:root[data-wp=pond].hnonly #linksbox .group a{padding:calc(7px * var(--fit,1)) 10px;font-size:calc(14px * var(--fit,1))}
+:root[data-wp=pond].hnonly #linksbox .g{width:calc(26px * var(--fit,1));height:calc(26px * var(--fit,1));font-size:calc(13px * var(--fit,1))}
+:root[data-wp=pond] #w-news>header{display:none}
+:root[data-wp=pond] #w-news>.body{padding:0}
+@media(min-width:1180px){:root[data-wp=pond].hnside:not(.hnfree) #linksbox,:root[data-wp=pond].hnside:not(.hnfree) .sect,:root[data-wp=pond].hnside:not(.hnfree) .widgets{margin-left:max(0px,calc(268px - (100vw - 1100px) / 2))}}
+@media(max-width:1179px){:root[data-wp=pond]:not(.hnfree) #w-news{position:static;width:auto;max-height:none;overflow:visible}}
 :root[data-wp=pond] .group a:hover,:root[data-wp=pond] .group a:focus-visible{box-shadow:0 0 22px rgba(61,224,168,.18)}
-.rip{position:fixed;width:12px;height:12px;margin:-6px 0 0 -6px;border:2px solid var(--accent);border-radius:50%;pointer-events:none;z-index:20;animation:rip .9s ease-out forwards}
-@keyframes rip{to{transform:scale(16);opacity:0}}
+#motes{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;display:none}
+:root[data-wp=pond] #motes{display:block}
 :root[data-wp=matrix] .hero h1{text-shadow:0 0 18px rgba(0,255,102,.55)}
 :root[data-wp=cyber] .hero h1{text-shadow:2px 0 var(--accent),-2px 0 var(--accent2)}
 :root[data-wp=artist] .hero h1{font-style:italic;font-weight:500}
@@ -242,6 +273,7 @@ textarea{min-height:140px;resize:vertical}
 <canvas id="fx" aria-hidden="true"></canvas>
 <video id="vid" muted loop playsinline preload="metadata" aria-hidden="true"></video>
 <div id="vig" aria-hidden="true"></div>
+<canvas id="motes" aria-hidden="true"></canvas>
 <svg id="grain" aria-hidden="true"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 1.2 -.1"/></filter><rect width="100%" height="100%" filter="url(#n)"/></svg>
 
 <div id="hello"></div>
@@ -259,7 +291,7 @@ textarea{min-height:140px;resize:vertical}
     <form id="ask" class="sb" method="get"><b>✦</b><input name="q" placeholder="ask ai" autocomplete="off"><button>ask</button></form>
   </section>
 
-  <div class="win"><header><i></i><i></i><i></i><span>~/links</span></header><div class="body"><div class="cols" id="links"></div></div></div>
+  <div class="win" id="linksbox"><header><i></i><i></i><i></i><span>~/links</span></header><div class="body"><div class="cols" id="links"></div></div></div>
 
   <div class="sect">widgets</div>
   <section class="widgets" id="widgets"></section>
@@ -291,6 +323,8 @@ const FALLBACK = {
   favicons: true,
   newTab: true,
   hnRange: "front",
+  pondHnRange: "day",
+  pondHnPos: null,
   pondVideo: "auto",
   pondVideos: [
     { label: "720p",  width: 1280, src: "assets/pond-720.mp4" },
@@ -391,8 +425,28 @@ const HW = {
   "?": [10, "M1.2 -17C2 -22 9.2 -21.4 8.6 -15.6C8.2 -12 4.8 -11.4 4.8 -6.6", "M4.8 -0.2L4.85 -0.2"],
   "-": [8, "M0.8 -7L6.6 -7"],
   "'": [3, "M1.4 -21L1 -15.6"],
-  ":": [3.4, "M1.4 -10.2L1.45 -10.2", "M1.4 -0.2L1.45 -0.2"]
+  ":": [3.4, "M1.4 -10.2L1.45 -10.2", "M1.4 -0.2L1.45 -0.2"],
+  ";": [3.4, "M1.4 -10.2L1.45 -10.2", "M1.6 -0.4C2 1.2 1.4 2.6 0.4 3.4"],
+  "·": [3.4, "M1.4 -6L1.45 -6"],
+  "(": [5, "M3.6 -21C0.8 -16 0.8 -4 3.6 1.4"],
+  ")": [5, "M1.4 -21C4.2 -16 4.2 -4 1.4 1.4"],
+  "[": [5, "M3.8 -21L1.4 -21L1.4 1.2L3.8 1.2"],
+  "]": [5, "M1.2 -21L3.6 -21L3.6 1.2L1.2 1.2"],
+  "/": [7, "M6.2 -21L0.8 1"],
+  "&": [12, "M10.6 0L4 -11C2.4 -14 3.6 -17.2 6.2 -17.2C8.6 -17.2 9.2 -14.4 7.6 -12.2L2.6 -5.6C0.8 -2.8 2.2 0.2 5.2 0.2C7.6 0.2 9.4 -2 10.6 -5.4"],
+  "%": [13, "M11.4 -20L1.6 0", "M3.6 -20.4C1.2 -20.4 1 -15.6 3.6 -15.6C6 -15.6 6 -20.4 3.6 -20.4", "M9.6 -4.8C7.2 -4.8 7 0 9.6 0C12 0 12 -4.8 9.6 -4.8"],
+  "+": [9, "M4.6 -14L4.6 -3", "M0.2 -8.6L9 -8.6"],
+  "=": [9, "M0.6 -11L8.6 -11", "M0.6 -5.6L8.6 -5.6"],
+  '"': [6, "M1.6 -21L1.2 -15.4", "M4.6 -21L4.2 -15.4"],
+  "#": [11, "M3.6 -19L2.2 -1", "M8.4 -19L7 -1", "M0.6 -13L10.4 -13", "M0.2 -6.8L10 -6.8"],
+  "_": [9, "M0 3L9 3"],
+  "*": [7, "M3.4 -20L3.4 -12", "M0 -17.8L6.8 -14.2", "M6.8 -17.8L0 -14.2"],
+  "$": [10, "M8.6 -17.4C7.2 -20.2 2.6 -20 2.4 -16.6C2.2 -13 8.2 -12.4 8.2 -8.4C8.2 -4.6 2.8 -4.2 1 -7.6", "M5.4 -22.6L5.4 -1.2"],
+  "<": [8, "M7 -13L1 -7.2L7 -1.4"],
+  ">": [8, "M1 -13L7 -7.2L1 -1.4"],
+  "|": [3, "M1.4 -22L1.4 4"]
 };
+const HW_MAP = { "’": "'", "‘": "'", "“": '"', "”": '"', "–": "-", "—": "-", "‑": "-", "‐": "-", "‒": "-", "−": "-", "―": "-", "′": "'", "\u00a0": " " };   // typographic characters written with the plain glyphs
 const HW_MARK = {   // accents, placed at the glyph's centre x over height y
   "̈": (x, y) => [`M${x - 2.5} ${y}l.05 0`, `M${x + 2.5} ${y}l.05 0`],
   "́": (x, y) => [`M${x - 1.2} ${y + 1.8}L${x + 1.6} ${y - 1.8}`],
@@ -403,22 +457,54 @@ const HW_MARK = {   // accents, placed at the glyph's centre x over height y
   "̧": (x) => [`M${x - .4} 0C${x + 1.8} 1 ${x + 1.8} 3.4 ${x - 1} 3.8`]
 };
 /* lays the letters out (small, repeatable pen wobble: slight tilt, size and baseline drift) and returns the SVG, or null if a character has no glyph */
+function handGlyph(ch) {   // one character: its width and pen strokes, or null if there is no glyph
+  ch = HW_MAP[ch] || ch;
+  const nfd = ch.normalize("NFD"), base = nfd[0], marks = [...nfd.slice(1)], g = HW[base];
+  if (!g) return null;
+  let strokes = g.slice(1);
+  if (marks.length && "ij".includes(base)) strokes = strokes.slice(0, 1);
+  const my = /[A-Z]/.test(base) || "bdfhklt".includes(base) ? -26 : -16.5;
+  for (const m of marks) if (HW_MARK[m]) strokes = strokes.concat(HW_MARK[m](g[0] / 2, my));
+  return { w: g[0], strokes };
+}
 function handSVG(parts) {
   let x = 0, seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647, paths = [];
   for (const p of parts) for (const ch of p.text.normalize("NFC")) {
     if (ch === " ") { x += 6.5; continue; }
-    const nfd = ch.normalize("NFD"), base = nfd[0], marks = [...nfd.slice(1)], g = HW[base];
-    if (!g) return null;
-    let strokes = g.slice(1);
-    if (marks.length && "ij".includes(base)) strokes = strokes.slice(0, 1);
-    const my = /[A-Z]/.test(base) || "bdfhklt".includes(base) ? -26 : -16.5;
-    for (const m of marks) if (HW_MARK[m]) strokes = strokes.concat(HW_MARK[m](g[0] / 2, my));
+    const g = handGlyph(ch); if (!g) return null;
     const tf = `translate(${x.toFixed(2)} ${((rnd() - .5) * .9).toFixed(2)}) rotate(${((rnd() - .5) * 2.6).toFixed(2)}) scale(${(1 + (rnd() - .5) * .07).toFixed(3)})`;
-    strokes.forEach(d => paths.push(`<path${p.em ? ' class="em"' : ""} pathLength="1" transform="${tf}" d="${d}"/>`));
-    x += g[0] + 2.4;
+    g.strokes.forEach(d => paths.push(`<path${p.em ? ' class="em"' : ""} pathLength="1" transform="${tf}" d="${d}"/>`));
+    x += g.w + 2.4;
   }
   const W = x + 8;
   return `<svg viewBox="-2 -29 ${W.toFixed(1)} 42" aria-hidden="true"><g transform="skewX(-9)">${paths.join("")}</g></svg>`;
+}
+/* the same lettering as running text: wraps at maxUnits, k = pixels per unit; returns an SVG string or null when a character has no glyph */
+function handWrap(text, maxUnits, k, seed0 = 5) {
+  const words = text.replace(/…/g, "...").replace(/\s+/g, " ").trim().split(" "), lines = [];
+  let cur = [], curW = 0;
+  for (const word of words) {
+    const gs = []; let ww = 0;
+    for (const ch of word.normalize("NFC")) { const g = handGlyph(ch); if (!g) return null; gs.push(g); ww += g.w + 2.4; }
+    if (cur.length && curW + 6.5 + ww > maxUnits) { lines.push({ words: cur, w: curW }); cur = []; curW = 0; }
+    curW += (cur.length ? 6.5 : 0) + ww; cur.push(gs);
+  }
+  if (cur.length) lines.push({ words: cur, w: curW });
+  let seed = seed0; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647, lineH = 31, out = [];
+  lines.forEach((ln, li) => {
+    let x = 0, paths = [];
+    ln.words.forEach((gs, wi) => {
+      if (wi) x += 6.5;
+      gs.forEach(g => {
+        const tf = `translate(${x.toFixed(2)} ${((rnd() - .5) * .9).toFixed(2)}) rotate(${((rnd() - .5) * 2.6).toFixed(2)}) scale(${(1 + (rnd() - .5) * .07).toFixed(3)})`;
+        g.strokes.forEach(d => paths.push(`<path transform="${tf}" d="${d}"/>`));
+        x += g.w + 2.4;
+      });
+    });
+    out.push(`<g transform="translate(0 ${li * lineH}) skewX(-9)">${paths.join("")}</g>`);   // each line slants around its own baseline
+  });
+  const W = Math.max(...lines.map(l => l.w)) + 8, H = (lines.length - 1) * lineH + 42;
+  return `<svg viewBox="-2 -29 ${W.toFixed(1)} ${H}" width="${(W * k).toFixed(1)}" height="${(H * k).toFixed(1)}" aria-hidden="true">${out.join("")}</svg>`;
 }
 function renderHello(parts, animate = false) {
   const el = $("#hello"), svg = handSVG(parts), label = parts.map(p => p.text).join("");
@@ -646,18 +732,52 @@ function loadPondVideo() {
 /* Where the cat sits inside the video frame (measured: ~50% across, head at 33% of the height, feet at 48%). The video is scaled to cover the
    window, then moved so the cat is fully on screen and the search bars start just below its feet, whatever the window shape. */
 const CAT = { top: .33, bottom: .48 };
-function layoutPond() {
-  if (document.documentElement.dataset.wp !== "pond") return;
-  const vid = $("#vid"), W = innerWidth, H = innerHeight, ar = vid.videoWidth && vid.videoHeight ? vid.videoWidth / vid.videoHeight : 16 / 9;
-  const w = Math.max(W, H * ar), h = w / ar, catH = (CAT.bottom - CAT.top) * h;
-  const want = Math.min(Math.max(.36 * H, 140 + catH), H - 160);          // where the cat's feet should be
-  const y = Math.min(0, Math.max(H - h, want - CAT.bottom * h));          // keep the video covering the window
-  vid.style.width = w + "px"; vid.style.height = h + "px"; vid.style.left = (W - w) / 2 + "px"; vid.style.top = y + "px";
-  const feet = y + CAT.bottom * h;
-  document.documentElement.style.setProperty("--pond-top", Math.max(0, feet + 36 - 86) + "px");   // 86px = main's top padding
-  document.documentElement.style.setProperty("--pond-hello-top", $("#top").getBoundingClientRect().bottom + 28 + "px");   // greeting just under the top bar
+/* only Hacker News enabled in pond: shrink the links window just enough that everything fits the window, so there is no scrollbar */
+function fitPond() {
+  const root = document.documentElement, box = $("#linksbox");
+  root.classList.remove("pondfit"); root.style.setProperty("--fit", 1);
+  if (!root.classList.contains("hnonly")) return 1;
+  root.classList.add("pondfit");
+  const room = () => innerHeight - box.getBoundingClientRect().top - 16;
+  let f = 1;
+  for (let i = 0; i < 3; i++) { const h = box.offsetHeight, r = room(); if (h <= r + 1) break; f = Math.max(.55, f * r / h); root.style.setProperty("--fit", f.toFixed(3)); }
+  if (Math.max(box.getBoundingClientRect().bottom, $("#widgets").getBoundingClientRect().bottom) > innerHeight + 1) { root.classList.remove("pondfit"); root.style.setProperty("--fit", 1); }   // does not fit even when compact (e.g. narrow windows): let the page scroll instead
+  return root.classList.contains("pondfit") ? f : 0;   // 0 = does not fit at all
 }
-addEventListener("resize", () => requestAnimationFrame(layoutPond));
+function applyHnPos() {   // custom sidebar position (fractions of the window), set by dragging in edit mode
+  const root = document.documentElement, p = CONFIG.pondHnPos, W = innerWidth, H = innerHeight;
+  if (p && isFinite(p.x) && isFinite(p.y)) {
+    root.style.setProperty("--hn-x", Math.min(Math.max(0, p.x * W), Math.max(0, W - HN_W - 2)) + "px");
+    root.style.setProperty("--hn-y", Math.min(Math.max(0, p.y * H), Math.max(0, H - 60)) + "px");
+    root.classList.add("hnfree");
+  } else { root.style.removeProperty("--hn-x"); root.style.removeProperty("--hn-y"); root.classList.remove("hnfree"); }
+}
+let FIT_MIN = .7;   // smallest scale of the links window that is still fine to read; below that, in HN-only mode, the cat is lifted instead
+function layoutPond() {
+  const root = document.documentElement;
+  if (root.dataset.wp !== "pond") { root.classList.remove("pondfit"); return; }
+  const vid = $("#vid"), W = innerWidth, H = innerHeight, ar = vid.videoWidth && vid.videoHeight ? vid.videoWidth / vid.videoHeight : 16 / 9;
+  const w0 = Math.max(W, H * ar), h0 = w0 / ar, hnOnly = root.classList.contains("hnonly");
+  // video of zoom z, moved so the cat's feet are at `feet` (as far as the video still covers the window)
+  const geom = (z, feet) => { const w = w0 * z, h = h0 * z, y = Math.min(0, Math.max(H - h, feet - CAT.bottom * h)); return { w, h, y, feet: y + CAT.bottom * h, catTop: y + CAT.top * h }; };
+  const normal = geom(1, Math.min(Math.max(.36 * H, 140 + (CAT.bottom - CAT.top) * h0), H - 160));
+  const apply = g => {
+    vid.style.width = g.w + "px"; vid.style.height = g.h + "px"; vid.style.left = (W - g.w) / 2 + "px"; vid.style.top = g.y + "px";
+    root.style.setProperty("--pond-top", Math.max(0, g.feet + 36 - 86) + "px");   // 86px = main's top padding
+    root.style.setProperty("--pond-hello-top", $("#top").getBoundingClientRect().bottom + 28 + "px");   // greeting just under the top bar
+  };
+  apply(normal);
+  if (fitPond() < FIT_MIN && hnOnly) {
+    // only Hacker News enabled and the links window would get too small to fit: lift the cat a step at a time (zooming the video a little so its top edge stays covered), only as far as needed
+    for (let lift = 14; lift <= 200; lift += 14) {
+      const want = normal.feet - lift, z = Math.min(1.35, Math.max(1, ((H - want) / (1 - CAT.bottom)) / h0)), g = geom(z, want);
+      if (g.catTop < 152) break;   // keep the greeting clear of the cat
+      apply(g);
+      if (fitPond() >= FIT_MIN) break;
+    }
+  }
+}
+addEventListener("resize", () => requestAnimationFrame(() => { applyHnPos(); layoutPond(); }));
 let rzt;
 addEventListener("resize", () => { clearTimeout(rzt); rzt = setTimeout(() => { if (document.documentElement.dataset.wp === "pond" && CONFIG.pondVideo === "auto") loadPondVideo(); }, 400); });
 let stopFx = () => {};
@@ -669,16 +789,46 @@ function paint() {
   $("#wall").innerHTML = (PAINT[THEME_ART[t] || t] || PAINT.landscape)(c);
   if (t === "matrix") stopFx = rain();
   const vid = $("#vid");   // pond: a looping video if assets/pond.mp4 exists (otherwise the drawn fallback shows)
-  if (t === "pond") { layoutPond(); loadPondVideo(); if (!helloTyped) typeHello(); } else vid.pause();
+  if (t === "pond") { layoutPond(); loadPondVideo(); motes.start(); if (!helloTyped) typeHello(); } else { vid.pause(); motes.stop(); }
 }
 $("#vid").addEventListener("loadedmetadata", layoutPond);
 $("#vid").addEventListener("loadeddata", () => { $("#vid").classList.add("ok"); if (document.documentElement.dataset.wp === "pond" && !matchMedia("(prefers-reduced-motion: reduce)").matches) $("#vid").play().catch(() => {}); });
 $("#vid").addEventListener("error", () => { const v = $("#vid"); v.classList.remove("ok"); pondTried.add(v.getAttribute("src")); if (document.documentElement.dataset.wp === "pond") loadPondVideo(); });
-document.addEventListener("pointerdown", e => {   // pond: clicks make ripples
-  if (document.documentElement.dataset.wp !== "pond" || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const r = document.createElement("span"); r.className = "rip"; r.style.left = e.clientX + "px"; r.style.top = e.clientY + "px";
-  r.addEventListener("animationend", () => r.remove()); setTimeout(() => r.remove(), 1200); document.body.appendChild(r);
-});
+/* pond: faint floating particles, like the sparkles in the video; they light up as the cursor comes close, as if the cursor lit them */
+const motes = (() => {
+  const cv = $("#motes"), cx = cv.getContext("2d"), reduce = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let W = 0, H = 0, dpr = 1, ps = [], raf = 0, mx = -1e4, my = -1e4, on = false;
+  const R = 170;   // how far the cursor's light reaches (px)
+  const sprite = rgb => { const c = document.createElement("canvas"); c.width = c.height = 64; const g = c.getContext("2d"), r = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    r.addColorStop(0, `rgba(${rgb},1)`); r.addColorStop(.18, `rgba(${rgb},.55)`); r.addColorStop(1, `rgba(${rgb},0)`); g.fillStyle = r; g.fillRect(0, 0, 64, 64); return c; };
+  const sprites = [sprite("190,255,225"), sprite("190,255,225"), sprite("255,243,176")];   // mostly mint, now and then warm like the cat's eyes
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const make = () => ({ x: rnd(0, W), y: rnd(0, H), r: rnd(.5, 1.3), vx: rnd(-.07, .07), vy: rnd(-.16, -.02), ph: rnd(0, 6.28), sp: rnd(.4, 1.1), a: rnd(.1, .26), lit: 0, s: sprites[(Math.random() * 3) | 0] });
+  const size = () => { dpr = Math.min(2, devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = W * dpr; cv.height = H * dpr; cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const n = Math.min(240, Math.round(W * H / 7000)); while (ps.length < n) ps.push(make()); ps.length = n; };
+  const draw = t => {
+    cx.clearRect(0, 0, W, H);
+    for (const p of ps) {
+      if (!reduce()) { p.x += p.vx + Math.sin(t / 2600 * p.sp + p.ph) * .05; p.y += p.vy; if (p.y < -12) { p.y = H + 12; p.x = rnd(0, W); } if (p.x < -12) p.x = W + 12; else if (p.x > W + 12) p.x = -12; }
+      const d = Math.hypot(p.x - mx, p.y - my), near = d < R ? Math.pow(1 - d / R, 2) : 0;
+      p.lit += (near - p.lit) * .12;   // ease in and out so the light fades smoothly
+      const tw = .75 + .25 * Math.sin(t / 900 * p.sp + p.ph), a = Math.min(.9, p.a * tw + p.lit * .7), size = p.r * (5 + p.lit * 6);
+      cx.globalAlpha = a; cx.drawImage(p.s, p.x - size / 2, p.y - size / 2, size, size);
+    }
+    cx.globalAlpha = 1;
+  };
+  let lastT = 0;
+  const loop = t => { raf = requestAnimationFrame(loop); if (t - lastT < 33) return; lastT = t; draw(t); };   // ~30fps is plenty for slow drifting dots
+  document.addEventListener("visibilitychange", () => { if (!on || reduce()) return; cancelAnimationFrame(raf); if (!document.hidden) raf = requestAnimationFrame(loop); });
+  addEventListener("pointermove", e => { mx = e.clientX; my = e.clientY; if (on && reduce()) draw(0); }, { passive: true });
+  document.addEventListener("mouseout", e => { if (!e.relatedTarget) mx = my = -1e4; });   // pointer left the window
+  addEventListener("blur", () => { mx = my = -1e4; });
+  addEventListener("resize", () => { if (on) size(); });
+  return {
+    start() { if (on) return; on = true; size(); if (reduce()) draw(0); else raf = requestAnimationFrame(loop); },
+    stop() { on = false; cancelAnimationFrame(raf); cx.clearRect(0, 0, W, H); }
+  };
+})();
 const setWp = n => { document.documentElement.dataset.wp = n; paint(); };
 /* theme dropdown: hovering (or arrowing to) an entry previews that theme, clicking applies it */
 const menu = $("#wpm"), tbtn = $("#wpb");
@@ -690,7 +840,7 @@ const markCur = () => lis().forEach(li => li.setAttribute("aria-selected", li.da
 const preview = n => { clearTimeout(pt); pt = setTimeout(() => { if (document.documentElement.dataset.wp !== n) setWp(n); }, 50); };
 const openMenu = () => { menu.hidden = false; tbtn.setAttribute("aria-expanded", "true"); markCur(); menu.querySelector(`[data-t="${committed}"]`).focus(); };
 const closeMenu = () => { if (menu.hidden) return; menu.hidden = true; tbtn.setAttribute("aria-expanded", "false"); preview(committed); };
-const applyTheme = n => { committed = n; clearTimeout(pt); setWp(n); tbtn.firstElementChild.textContent = n; store.set("wp", n); markCur(); };
+const applyTheme = n => { committed = n; clearTimeout(pt); setWp(n); tbtn.firstElementChild.textContent = n; store.set("wp", n); markCur(); if (hnReload) hnReload(); };
 const commitWp = n => { applyTheme(n); closeMenu(); tbtn.focus(); };
 tbtn.onclick = () => menu.hidden ? openMenu() : closeMenu();
 menu.addEventListener("mouseover", e => { const li = e.target.closest("li"); if (li) { li.focus({ preventScroll: true }); preview(li.dataset.t); } });
@@ -720,29 +870,40 @@ function renderLinks() {
 renderLinks();
 
 /* widgets: each has a title, a window-title `file`, and a render(body) function. Add your own here. */
+let hnReload = null;
+const HN_W = 224, HN_K = .6;   // sidebar text width and letter scales (pixels per lettering unit)
 const WIDGETS = {
   news: { title: "Hacker News", file: "hn --top", async render(b) {
     const ranges = { front: ["front page", 0], hour: ["top · past hour", 3600], day: ["top · today", 86400], week: ["top · this week", 604800], month: ["top · this month", 2592000] };
     let range = store.get("hnrange", CONFIG.hnRange); if (!ranges[range]) range = "front";
+    // the pond sidebar has no controls: its timeframe is fixed (setting pondHnRange, "today" by default) and only changes in edit mode
+    const eff = () => { const r = document.documentElement.dataset.wp === "pond" ? CONFIG.pondHnRange : range; return ranges[r] ? r : "day"; };
     b.innerHTML = `<select class="pill hnr" aria-label="Time range">${Object.entries(ranges).map(([k, [l]]) => `<option value="${k}"${k === range ? " selected" : ""}>${l}</option>`).join("")}</select><div class="hnl"></div>`;
     const list = $(".hnl", b);
+    let shown = null;
     const load = async () => {
+      shown = eff(); const r = shown;
       list.innerHTML = `<div class="muted">loading…</div>`;
       try {
         let items;
-        if (range === "front") {   // the live front page
+        if (r === "front") {   // the live front page
           const ids = (await (await fetch("https://hacker-news.firebaseio.com/v0/topstories.json")).json()).slice(0, 7);
-          items = (await Promise.all(ids.map(i => fetch(`https://hacker-news.firebaseio.com/v0/item/${i}.json`).then(r => r.json()))))
+          items = (await Promise.all(ids.map(i => fetch(`https://hacker-news.firebaseio.com/v0/item/${i}.json`).then(x => x.json()))))
             .map(i => ({ id: i.id, title: i.title, url: i.url, points: i.score, comments: i.descendants || 0 }));
         } else {                   // best stories of a time window (HN Algolia search)
-          const since = Math.floor(Date.now() / 1000) - ranges[range][1];
+          const since = Math.floor(Date.now() / 1000) - ranges[r][1];
           const j = await (await fetch(`https://hn.algolia.com/api/v1/search?tags=story&numericFilters=created_at_i%3E${since}&hitsPerPage=7`)).json();
           items = j.hits.map(h => ({ id: h.objectID, title: h.title, url: h.url, points: h.points || 0, comments: h.num_comments || 0 }));
         }
-        list.innerHTML = items.length ? `<ul class="news">${items.map(i => `<li><a href="${esc(i.url || "https://news.ycombinator.com/item?id=" + i.id)}"${tgt()}>${esc(i.title)}</a><small>${i.points} pts · ${i.comments} comments</small></li>`).join("")}</ul>` : `<div class="muted">nothing found</div>`;
+        if (r !== shown) return;   // a newer load took over
+        list.innerHTML = items.length ? `<ul class="news">${items.map(i => {
+          const meta = `${i.points} pts · ${i.comments} comments`, hw = handWrap(i.title, HN_W / HN_K, HN_K, i.id % 97 + 3);
+          return `<li><a href="${esc(i.url || "https://news.ycombinator.com/item?id=" + i.id)}"${tgt()} title="${esc(i.title)}">${hw ? `<span class="hw t">${hw}</span>` : ""}<span class="plain">${esc(i.title)}</span><small class="plain">${meta}</small></a></li>`;
+        }).join("")}</ul>` : `<div class="muted">nothing found</div>`;
       } catch { list.innerHTML = `<div class="muted">couldn't load (offline?)</div>`; }
     };
-    $(".hnr", b).onchange = e => { range = e.target.value; store.set("hnrange", range); load(); };
+    $(".hnr", b).onchange = e => { range = e.target.value; store.set("hnrange", range); if (eff() !== shown) load(); };
+    hnReload = () => { if (eff() !== shown) load(); };   // called when the theme or the timeframe settings change
     load();
   }},
   progress: { title: "Time progress", file: "uptime", render(b) {
@@ -802,6 +963,10 @@ function renderWidgets() {
     const r = w.render($(".body", el));
     if (r && !r.then) cleanups[id] = r;
   }
+  const root = document.documentElement, shown = enabled.filter(k => WIDGETS[k]);
+  root.classList.toggle("hnside", enabled.includes("news"));
+  root.classList.toggle("hnonly", shown.length === 1 && shown[0] === "news");
+  layoutPond();
   if (!enabled.length) box.innerHTML = `<div class="muted">no widgets enabled. click “widgets” to add some.</div>`;
 }
 $("#toggles").innerHTML = Object.entries(WIDGETS).map(([id, w]) => `<label><input type="checkbox" value="${id}"> ${esc(w.title)}</label>`).join("");
@@ -826,6 +991,8 @@ function applySettings(patch = {}) {
   if (all || has("weather")) loadWx();
   if (all || has("themes")) { buildMenu(); if (!THEMES.includes(committed)) applyTheme(THEMES[0]); else markCur(); }
   if (has("pondVideo", "pondVideos") && document.documentElement.dataset.wp === "pond") { pondTried.clear(); loadPondVideo(); }
+  if ((all || has("pondHnRange", "hnRange")) && hnReload) hnReload();
+  if (all || has("pondHnPos")) { applyHnPos(); layoutPond(); }
   if (has("hnRange")) { store.set("hnrange", CONFIG.hnRange); renderWidgets(); }
 }
 const ed = $("#ed"), edBody = $("#edbody");
@@ -837,7 +1004,7 @@ const saveGroups = gs => { const o = {}; gs.forEach(([n, items]) => { o[n] = ite
 const uniqueName = (gs, base) => { let n = base, i = 2; while (gs.some(([g]) => g === n)) n = `${base} ${i++}`; return n; };
 const HN_OPTS = { front: "front page", hour: "top · past hour", day: "top · today", week: "top · this week", month: "top · this month" };
 const GREET_KEYS = ["night", "morning", "afternoon", "evening"];
-const effective = () => ({ name: CONFIG.name, searchUrl: CONFIG.searchUrl, askUrl: CONFIG.askUrl, noAiBefore: CONFIG.noAiBefore, favicons: !!CONFIG.favicons, newTab: !!CONFIG.newTab, hnRange: CONFIG.hnRange, pondVideo: CONFIG.pondVideo, weather: CONFIG.weather, themes: THEMES, greetings: GREET, links: CONFIG.links });
+const effective = () => ({ name: CONFIG.name, searchUrl: CONFIG.searchUrl, askUrl: CONFIG.askUrl, noAiBefore: CONFIG.noAiBefore, favicons: !!CONFIG.favicons, newTab: !!CONFIG.newTab, hnRange: CONFIG.hnRange, pondHnRange: CONFIG.pondHnRange, pondHnPos: CONFIG.pondHnPos, pondVideo: CONFIG.pondVideo, weather: CONFIG.weather, themes: THEMES, greetings: GREET, links: CONFIG.links });
 const exportText = () => `window.SETUP_LOCAL = ${JSON.stringify(effective(), null, 2)};\n`;
 function sanitize(o) {
   const out = {};
@@ -847,6 +1014,8 @@ function sanitize(o) {
   if (typeof o.favicons === "boolean") out.favicons = o.favicons;
   if (typeof o.newTab === "boolean") out.newTab = o.newTab;
   if (o.hnRange in HN_OPTS) out.hnRange = o.hnRange;
+  if (o.pondHnRange in HN_OPTS) out.pondHnRange = o.pondHnRange;
+  if (o.pondHnPos && o.pondHnPos.x >= 0 && o.pondHnPos.x <= 1 && o.pondHnPos.y >= 0 && o.pondHnPos.y <= 1) out.pondHnPos = { x: +o.pondHnPos.x, y: +o.pondHnPos.y };
   if (typeof o.pondVideo === "string" && (o.pondVideo === "auto" || (CONFIG.pondVideos || []).some(v => v.label === o.pondVideo))) out.pondVideo = o.pondVideo;
   if (o.weather && isFinite(o.weather.lat) && isFinite(o.weather.lon)) out.weather = { city: String(o.weather.city || ""), lat: +o.weather.lat, lon: +o.weather.lon };
   if (Array.isArray(o.themes)) { const t = o.themes.filter(x => ALL_THEMES.includes(x)); if (t.length) out.themes = t; }
@@ -885,6 +1054,8 @@ function renderEd() {
     <button class="pill" data-act="addgroup">+ group</button>
     <h3>pond theme (video)</h3>
     <label class="fld"><span>quality</span><select class="pill" data-k="pondVideo"><option value="auto"${c.pondVideo === "auto" || !c.pondVideo ? " selected" : ""}>auto (best for this screen)</option>${(c.pondVideos || []).map(v => `<option value="${esc(v.label)}"${v.label === c.pondVideo ? " selected" : ""}>${esc(v.label)} (${v.width}px wide)</option>`).join("")}</select></label>
+    <label class="fld"><span>hn timeframe</span><select class="pill" data-k="pondHnRange">${Object.entries(HN_OPTS).map(([k, l]) => `<option value="${k}"${k === (c.pondHnRange || "day") ? " selected" : ""}>${l}</option>`).join("")}</select></label>
+    <div class="fld"><span>hn sidebar</span><div class="inl"><button class="pill" data-act="hnmove" aria-pressed="${document.documentElement.classList.contains("hndrag")}">${document.documentElement.classList.contains("hndrag") ? "done moving" : "move it"}</button><button class="pill" data-act="hnreset">reset position</button></div></div>
     <p class="note">${document.documentElement.dataset.wp === "pond" && $("#vid").dataset.label ? `playing now: ${esc($("#vid").dataset.label)}${$("#vid").classList.contains("ok") ? "" : " (not loaded, check the files in assets/)"}` : "switch to the pond theme to see the video"}. Files live in assets/ and are listed under pondVideos in setup.js.</p>
     <h3>themes in the dropdown</h3>
     <div>${ALL_THEMES.map(t => `<label class="chk"><input type="checkbox" data-th="${t}"${THEMES.includes(t) ? " checked" : ""}>${t}</label>`).join("")}</div>
@@ -916,6 +1087,8 @@ edBody.addEventListener("click", e => {
   else if (a === "ldel") { gs[gi][1].splice(li, 1); saveGroups(gs); renderEd(); }
   else if (a === "geo") geoSearch();
   else if (a === "pick") { setOv({ weather: { city: b.dataset.city, lat: +b.dataset.lat, lon: +b.dataset.lon } }); renderEd(); }
+  else if (a === "hnmove") { const on = document.documentElement.classList.toggle("hndrag"); b.textContent = on ? "done moving" : "move it"; b.setAttribute("aria-pressed", on); msg(on ? "Drag the Hacker News list on the page (pond theme)." : ""); }
+  else if (a === "hnreset") { document.documentElement.classList.remove("hndrag"); unsetOv(["pondHnPos"]); renderEd(); }
   else if (a === "export") { const t = $("#bk", edBody); t.value = exportText(); t.select(); msg("Save this as setup.local.js next to index.html."); }
   else if (a === "copy") { const t = $("#bk", edBody); if (!t.value) t.value = exportText(); t.select(); (navigator.clipboard ? navigator.clipboard.writeText(t.value) : Promise.reject()).then(() => msg("copied"), () => { try { document.execCommand("copy"); msg("copied"); } catch { msg("press Ctrl/Cmd+C to copy"); } }); }
   else if (a === "download") { const url = URL.createObjectURL(new Blob([exportText()], { type: "text/javascript" })), l = document.createElement("a"); l.href = url; l.download = "setup.local.js"; l.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
@@ -957,12 +1130,29 @@ edBody.addEventListener("change", e => {
   }
 });
 edBody.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.id === "citysearch") { e.preventDefault(); geoSearch(); } });
+(() => {   // dragging the sidebar (only while "move it" is on in edit mode)
+  let drag = null;
+  document.addEventListener("pointerdown", e => {
+    const root = document.documentElement, n = e.target.closest("#w-news");
+    if (!n || !root.classList.contains("hndrag") || root.dataset.wp !== "pond") return;
+    const r = n.getBoundingClientRect(); drag = { n, dx: e.clientX - r.left, dy: e.clientY - r.top, x: r.left, y: r.top };
+    n.classList.add("dragging"); n.setPointerCapture(e.pointerId); e.preventDefault();
+  });
+  document.addEventListener("pointermove", e => {
+    if (!drag) return;
+    drag.x = Math.min(Math.max(0, e.clientX - drag.dx), Math.max(0, innerWidth - HN_W - 2)); drag.y = Math.min(Math.max(0, e.clientY - drag.dy), Math.max(0, innerHeight - 60));
+    const root = document.documentElement; root.style.setProperty("--hn-x", drag.x + "px"); root.style.setProperty("--hn-y", drag.y + "px"); root.classList.add("hnfree");
+  });
+  const end = () => { if (!drag) return; drag.n.classList.remove("dragging"); setOv({ pondHnPos: { x: +(drag.x / innerWidth).toFixed(4), y: +(drag.y / innerHeight).toFixed(4) } }); drag = null; };
+  document.addEventListener("pointerup", end); document.addEventListener("pointercancel", end);
+})();
 const openEd = () => { renderEd(); ed.hidden = false; $("#editbtn").setAttribute("aria-expanded", "true"); };
-const closeEd = () => { ed.hidden = true; $("#editbtn").setAttribute("aria-expanded", "false"); };
+const closeEd = () => { document.documentElement.classList.remove("hndrag"); ed.hidden = true; $("#editbtn").setAttribute("aria-expanded", "false"); };
 $("#editbtn").onclick = () => ed.hidden ? openEd() : closeEd();
 $("#edclose").onclick = closeEd;
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !ed.hidden) closeEd(); });
 
+applyHnPos();
 { const saved = store.get("wp", THEMES[0]); committed = THEMES.includes(saved) ? saved : THEMES[0]; setWp(committed); tbtn.firstElementChild.textContent = committed; markCur(); }
 renderWidgets();
 </script>
