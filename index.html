@@ -54,6 +54,18 @@
   --mono:ui-rounded,"SF Pro Rounded","Avenir Next","Nunito","Segoe UI",system-ui,sans-serif;--head:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;--fs:15px;
   --sky1:#03120e;--sky2:#06261d;--sky3:#0c4a38;--text:#e6fff4;--muted:#8fc9b0;--accent:#3de0a8;--accent2:#e9d36a;--green:#6fe3a8;--blue:#4fd1c5;--pink:#e3a58a;
   --panel:rgba(3,20,16,.52);--line:rgba(120,255,200,.22);--ink:#03120e;--rad:18px;--pill:999px;--shadow:0 12px 44px rgba(0,0,0,.45),0 0 34px rgba(61,224,168,.07);--blur:20px;--grain:.07}
+/* typing in the ai bar shifts the whole pond theme to red (class ask-red); the colours are registered so they fade instead of jumping */
+@property --accent{syntax:"<color>";inherits:true;initial-value:#3de0a8}
+@property --accent2{syntax:"<color>";inherits:true;initial-value:#e9d36a}
+@property --text{syntax:"<color>";inherits:true;initial-value:#e6fff4}
+@property --muted{syntax:"<color>";inherits:true;initial-value:#8fc9b0}
+@property --panel{syntax:"<color>";inherits:true;initial-value:rgba(3,20,16,.52)}
+@property --line{syntax:"<color>";inherits:true;initial-value:rgba(120,255,200,.22)}
+@property --mint{syntax:"<color>";inherits:true;initial-value:rgb(61,224,168)}
+:root[data-wp=pond]{--mint:rgb(61,224,168);transition:--accent 1.6s ease,--accent2 1.6s ease,--text 1.6s ease,--muted 1.6s ease,--panel 1.6s ease,--line 1.6s ease,--mint 1.6s ease}
+:root[data-wp=pond].ask-red{--sky1:#140505;--sky2:#2a0a0a;--sky3:#4a1410;--text:#ffe9e4;--muted:#d49a90;--accent:#ff4545;--accent2:#ff8a70;--green:#ff6a6a;--blue:#ff6a6a;--pink:#ff8a8a;--panel:rgba(22,4,4,.52);--line:rgba(255,125,115,.26);--ink:#1a0505;--mint:rgb(255,70,70)}
+#vid{filter:hue-rotate(0deg);transition:filter 1.6s ease}
+:root[data-wp=pond].ask-red #vid{filter:hue-rotate(-168deg) saturate(1.4)}
 #vid{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;display:none;pointer-events:none}
 :root[data-wp=pond] #vid.ok{display:block}
 :root[data-wp=pond] #vid{inset:auto;width:auto;height:auto;object-fit:fill}   /* size + position are set in layoutPond() so the search bars always sit right under the cat */
@@ -70,7 +82,7 @@
 #hello path.em{stroke:var(--accent)}
 #hello.writing path{stroke-dasharray:1 1.1;animation:draw var(--t,.2s) ease-in-out var(--d,0s) both}
 @keyframes draw{0%{opacity:0;stroke-dashoffset:1.05}1%{opacity:1}100%{opacity:1;stroke-dashoffset:0}}
-#hello.txt{font:italic 300 clamp(1.3rem,2.6vw,1.75rem)/1.15 var(--head);white-space:nowrap;text-shadow:0 0 22px rgba(61,224,168,.55),0 1px 12px rgba(0,0,0,.8);line-height:1.15}
+#hello.txt{font:italic 300 clamp(1.3rem,2.6vw,1.75rem)/1.15 var(--head);white-space:nowrap;text-shadow:0 0 22px color-mix(in srgb,var(--mint) 55%,transparent),0 1px 12px rgba(0,0,0,.8);line-height:1.15}
 #hello.txt em{font-style:normal;color:var(--accent)}
 :root[data-wp=pond] #editbtn .pl{display:none}
 /* pond: Hacker News becomes a hand-lettered sidebar on the left: no window, no background */
@@ -129,7 +141,14 @@
 .ghm{margin-top:6px;padding-right:28px;text-align:right;font-size:11px;color:#fff;opacity:.5;text-shadow:0 0 6px rgba(0,0,0,.85)}
 @media(min-width:1180px){:root[data-wp=pond].ghside:not(.ghfree) .widgets,:root[data-wp=pond].ghside:not(.ghfree) #linksbox,:root[data-wp=pond].ghside:not(.ghfree) .sect{margin-right:max(0px,calc(338px - (100vw - 1100px) / 2))}}
 @media(max-width:1179px){:root[data-wp=pond]:not(.ghfree) #w-github{position:static;width:auto;max-height:none;overflow:visible}}
-:root[data-wp=pond] .group a:hover,:root[data-wp=pond] .group a:focus-visible{box-shadow:0 0 22px rgba(61,224,168,.18)}
+:root[data-wp=pond] #linksbox,:root[data-wp=pond] .sb{--blur:0px}   /* see-through until hovered */
+:root[data-wp=pond] #linksbox:hover,:root[data-wp=pond] .sb:hover,:root[data-wp=pond] .sb:focus-within{--blur:5px}
+/* the one in use (focused: typing in a search bar, or a link just clicked / tabbed to) glows like a soft bloom, drawn on the particle canvas behind it (see motes) so it fades in and out smoothly */
+:root[data-wp=pond] #linksbox,:root[data-wp=pond] .sb{transition:all .2s,border-color .8s ease,box-shadow .8s ease,backdrop-filter .45s ease,-webkit-backdrop-filter .45s ease}
+:root[data-wp=pond] #linksbox:focus-within,:root[data-wp=pond] .sb:focus-within{border-color:rgba(140,255,210,.45)}
+:root[data-wp=pond] #linksbox:focus-within{box-shadow:0 0 0 0 transparent}   /* the window's drop shadow fades away while the glow is on */
+@media(prefers-reduced-motion:reduce){:root[data-wp=pond] #linksbox:focus-within,:root[data-wp=pond] .sb:focus-within{box-shadow:0 0 24px 2px rgba(120,255,200,.28),0 0 56px 6px rgba(61,224,168,.13)}}
+:root[data-wp=pond] .group a:hover,:root[data-wp=pond] .group a:focus-visible{box-shadow:0 0 22px color-mix(in srgb,var(--mint) 18%,transparent)}
 #motes{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;display:none}
 :root[data-wp=pond] #motes{display:block}
 :root[data-wp=matrix] .hero h1{text-shadow:0 0 18px rgba(0,255,102,.55)}
@@ -521,7 +540,7 @@ function handSVG(parts) {
     x += g.w + 2.4;
   }
   const W = x + 8;
-  return `<svg viewBox="-2 -29 ${W.toFixed(1)} 42" aria-hidden="true"><g transform="skewX(-9)">${paths.join("")}</g></svg>`;
+  return `<svg viewBox="-2 -29 ${W.toFixed(1)} 42" aria-hidden="true"><g>${paths.join("")}</g></svg>`;
 }
 /* the same lettering as running text: wraps at maxUnits, k = pixels per unit; returns an SVG string or null when a character has no glyph */
 function handWrap(text, maxUnits, k, seed0 = 5, right = false) {
@@ -546,7 +565,7 @@ function handWrap(text, maxUnits, k, seed0 = 5, right = false) {
         x += g.w + 2.4;
       });
     });
-    out.push(`<g transform="translate(0 ${li * lineH}) skewX(-9)">${paths.join("")}</g>`);   // each line slants around its own baseline
+    out.push(`<g transform="translate(0 ${li * lineH})">${paths.join("")}</g>`);
   });
   const W = Math.max(...lines.map(l => l.w)) + 8, H = (lines.length - 1) * lineH + 42;
   return `<svg viewBox="-2 -29 ${W.toFixed(1)} ${H}" width="${(W * k).toFixed(1)}" height="${(H * k).toFixed(1)}" aria-hidden="true">${out.join("")}</svg>`;
@@ -574,7 +593,7 @@ function typeHello() {   // pond: write the greeting out once, the first time it
 function tick() {
   const d = new Date(), h = d.getHours(), p = n => String(n).padStart(2, "0");
   $("#clock").textContent = `${p(h)}:${p(d.getMinutes())}`;
-  $("#date").textContent = "· " + d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
+  $("#date").textContent = "· " + d.toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "short" });
   const g = h < 5 ? GREET.night : h < 12 ? GREET.morning : h < 18 ? GREET.afternoon : GREET.evening;
   const gt = g.charAt(0).toUpperCase() + g.slice(1);
   $("#greeting").innerHTML = esc(gt) + (CONFIG.name ? `, <em>${esc(CONFIG.name)}</em>` : "<em>.</em>");
@@ -602,11 +621,15 @@ const applyEndpoints = () => {
   $("#ask").action = isHttp(CONFIG.askUrl) ? CONFIG.askUrl : FALLBACK.askUrl;
 };
 applyEndpoints();
+{   // typing in the ai bar turns the pond theme red (while it is focused and has text)
+  const ai = $("#ask input[name=q]"), upd = () => document.documentElement.classList.toggle("ask-red", document.activeElement === ai && ai.value.trim() !== "");
+  ["input", "focus", "blur"].forEach(ev => ai.addEventListener(ev, upd));
+}
 /* "no ai": adds a before:<date> operator so results predate the AI boom (best-effort, depends on the engine honoring it) */
 let noAi = store.get("noai", false);
 const syncNoAi = () => {
   const b = $("#noai"), tip = `Crossed out = only results from before ${CONFIG.noAiBefore}`;
-  b.setAttribute("aria-pressed", noAi); b.title = tip; b.setAttribute("aria-label", `Exclude AI-era results (${tip.toLowerCase()})`);
+  document.documentElement.classList.toggle("noai", !!noAi); b.setAttribute("aria-pressed", noAi); b.title = tip; b.setAttribute("aria-label", `Exclude AI-era results (${tip.toLowerCase()})`);
 };
 $("#noai").onclick = () => { noAi = !noAi; store.set("noai", noAi); syncNoAi(); $("#q1").focus(); };
 $("#search").addEventListener("submit", () => {
@@ -849,24 +872,93 @@ const motes = (() => {
   const R = 200;   // how far the cursor's light reaches (px)
   const sprite = rgb => { const c = document.createElement("canvas"); c.width = c.height = 64; const g = c.getContext("2d"), r = g.createRadialGradient(32, 32, 0, 32, 32, 32);
     r.addColorStop(0, `rgba(${rgb},1)`); r.addColorStop(.18, `rgba(${rgb},.55)`); r.addColorStop(1, `rgba(${rgb},0)`); g.fillStyle = r; g.fillRect(0, 0, 64, 64); return c; };
-  const sprites = [sprite("190,255,225"), sprite("190,255,225"), sprite("255,243,176")];   // mostly mint, now and then warm like the cat's eyes
+  const sprites = [sprite("190,255,225"), sprite("190,255,225"), sprite("255,243,176")], spritesR = [sprite("255,170,165"), sprite("255,170,165"), sprite("255,195,165")];   // the red set is used while the ai bar is being typed in   // mostly mint, now and then warm like the cat's eyes
   const rnd = (a, b) => a + Math.random() * (b - a);
-  const make = () => ({ x: rnd(0, W), y: rnd(0, H), r: rnd(.5, 1.3), vx: rnd(-.07, .07), vy: rnd(-.16, -.02), ph: rnd(0, 6.28), sp: rnd(.4, 1.1), a: rnd(.1, .26), lit: 0, s: sprites[(Math.random() * 3) | 0] });
+  let bar = null, sparks = [], busy = false, rl = 0, eyes = 0, ec = 0, glitchTo = 0, glitchA = 1, glitchX = 0, glitchY = 0;   // eyes: how brightly the cat's eyes glow (0..1), eased; they light up while "no ai" is on   // rl: how red the theme currently is (0..1), eased
+  const put = (si, x, y, sz, a) => { if (rl < .99) { cx.globalAlpha = a * (1 - rl); cx.drawImage(sprites[si], x - sz / 2, y - sz / 2, sz, sz); } if (rl > .01) { cx.globalAlpha = a * rl; cx.drawImage(spritesR[si], x - sz / 2, y - sz / 2, sz, sz); } };
+  const glows = new Map();   // element -> how strongly its glow is on (0..1), eased towards 1 while it is focused   // sparks: little embers rising off the search bar that is in use, like from a campfire
+  document.addEventListener("focusin", e => { bar = e.target.closest && e.target.closest(".sb"); });
+  document.addEventListener("focusout", e => { if (!e.relatedTarget || !e.relatedTarget.closest || !e.relatedTarget.closest(".sb")) bar = null; });
+  const make = () => ({ x: rnd(0, W), y: rnd(0, H), r: rnd(.5, 1.3), vx: rnd(-.07, .07), vy: rnd(-.16, -.02), ph: rnd(0, 6.28), sp: rnd(.4, 1.1), a: rnd(.1, .26), lit: 0, s: (Math.random() * 3) | 0 });
   const size = () => { dpr = Math.min(2, devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = W * dpr; cv.height = H * dpr; cx.setTransform(dpr, 0, 0, dpr, 0, 0);
     const n = Math.min(240, Math.round(W * H / 7000)); while (ps.length < n) ps.push(make()); ps.length = n; };
-  const draw = t => {
+  const draw = (t, k = 1) => {   // k = frames of 60fps that passed since the last draw, so the speed does not depend on the frame rate
     cx.clearRect(0, 0, W, H);
+    busy = false; rl += ((document.documentElement.classList.contains("ask-red") ? 1 : 0) - rl) * (1 - Math.pow(.978, k)); if (Math.abs(rl) < .003) rl = 0;
+    if (!reduce() && document.documentElement.dataset.wp === "pond") {
+      const mixc = (a, b, m) => a + (b - a) * m, ease = 1 - Math.pow(.955, k), ph = t / 5500 * 6.283;
+      for (const el of [...document.querySelectorAll(".sb"), $("#linksbox")]) {
+        if (!el) continue;
+        let g = glows.get(el) || 0; g += ((el.matches(":focus-within") ? 1 : 0) - g) * ease; if (g < .005) g = 0; glows.set(el, g);
+        if (!g) continue;
+        busy = true;
+        const r = el.getBoundingClientRect(), rad = parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0, gold = (Math.sin(ph) + 1) / 2 * .6, pulse = .8 + .2 * Math.sin(ph * 1.7);
+        const col = a => `rgba(${mixc(mixc(120, 255, gold), 255, rl) | 0},${mixc(mixc(255, 232, gold), 80 + gold * 30, rl) | 0},${mixc(mixc(200, 150, gold), 95, rl) | 0},${a})`;
+        cx.save(); cx.beginPath(); cx.rect(0, 0, W, H); cx.roundRect(r.left, r.top, r.width, r.height, rad); cx.clip("evenodd");   // only outside the element: its own panel stays untouched
+        cx.fillStyle = "#000"; cx.beginPath(); cx.roundRect(r.left, r.top, r.width, r.height, rad);
+        cx.shadowColor = col(.5 * g * pulse); cx.shadowBlur = 70 * dpr; cx.fill();
+        cx.shadowColor = col(.7 * g * pulse); cx.shadowBlur = 24 * dpr; cx.fill();
+        cx.restore();
+      }
+    }
+    if (document.documentElement.dataset.wp === "pond") {
+      const root = document.documentElement, v = $("#vid"), ask = $("#ask"), ai = $("input", ask);
+      const hover = ask.matches(":hover"), focus = document.activeElement === ai, typing = focus && ai.value.trim() !== "";
+      // eyes glow only while a bar is hovered or focused: gold on the web search when "no ai" is on, red on the ai bar (that wins), with a glitchy flicker while it is focused
+      const srch = $("#search"), sUse = srch.matches(":hover") || srch.contains(document.activeElement);
+      const want = hover || focus || (sUse && root.classList.contains("noai")) ? 1 : 0, wantRed = hover || focus ? 1 : 0, ee = reduce() ? 1 : 1 - Math.pow(.95, k);
+      eyes += (want - eyes) * ee; if (eyes < .004) eyes = 0;
+      ec += (wantRed - ec) * ee;
+      if (focus && !reduce() && t > glitchTo && Math.random() < (typing ? .16 : .06) * k) { glitchTo = t + rnd(50, 170); glitchA = rnd(.05, .8); glitchX = rnd(-5, 5); glitchY = rnd(-1.5, 1.5); }
+      const gl = t < glitchTo;
+      if (eyes && v.classList.contains("ok")) {
+        const r = v.getBoundingClientRect(), red = Math.max(rl, ec), pulse = (reduce() ? 1 : .86 + .14 * Math.sin(t / 650) + .04 * Math.sin(t / 170)) * (gl ? glitchA : 1) * (1 + .45 * red);   // red glows are stronger and bigger
+        const c = [255, 235 - 175 * red, 110 - 55 * red].map(x => x | 0).join(",");   // gold, turning red
+        const R = r.width * .0088 * (1 + .35 * red), gx = gl ? glitchX : 0, gy = gl ? glitchY : 0;
+        const blob = (x, y, rot, rx, ry, col, a0, a1) => {   // a soft ellipse of light, tilted like the eye
+          cx.save(); cx.translate(x, y); cx.rotate(rot); cx.scale(1, ry / rx);
+          const g = cx.createRadialGradient(0, 0, 0, 0, 0, rx); g.addColorStop(0, `rgba(${col},${a0})`); g.addColorStop(.4, `rgba(${col},${a1})`); g.addColorStop(1, `rgba(${col},0)`);
+          cx.fillStyle = g; cx.fillRect(-rx, -rx, rx * 2, rx * 2); cx.restore();
+        };
+        cx.save(); cx.globalCompositeOperation = "lighter";
+        // [x in the video frame, tilt]: outer corners sit higher than the inner ones
+        for (const [fx, rot] of [[.4935, .46], [.5089, -.38]]) {
+          const x = r.left + fx * r.width + gx, y = r.top + .3714 * r.height + gy;
+          blob(x, y, rot, R * .8, R * .5, c, .58 * eyes * pulse, .24 * eyes * pulse);   // wide halo (transparent: the pupils stay visible)
+          blob(x, y, rot, R * .52, R * .27, c, .66 * eyes * pulse, .22 * eyes * pulse);    // brighter rim around the eye
+          if (gl) blob(x - gx * 1.6 - 4, y, rot, R * .8, R * .38, "90,220,255", .1 * eyes, .03 * eyes);   // a cold ghost image during a glitch
+        }
+        cx.restore();
+      }
+    }
     for (const p of ps) {
-      if (!reduce()) { p.x += p.vx + Math.sin(t / 2600 * p.sp + p.ph) * .05; p.y += p.vy; if (p.y < -12) { p.y = H + 12; p.x = rnd(0, W); } if (p.x < -12) p.x = W + 12; else if (p.x > W + 12) p.x = -12; }
+      if (!reduce()) { p.x += (p.vx + Math.sin(t / 2600 * p.sp + p.ph) * .05) * k; p.y += p.vy * k; if (p.y < -12) { p.y = H + 12; p.x = rnd(0, W); } if (p.x < -12) p.x = W + 12; else if (p.x > W + 12) p.x = -12; }
       const d = Math.hypot(p.x - mx, p.y - my), near = d < R ? Math.pow(1 - d / R, 2) : 0;
-      p.lit += (near - p.lit) * .12;   // ease in and out so the light fades smoothly
+      p.lit += (near - p.lit) * (1 - Math.pow(.88, k));   // ease in and out so the light fades smoothly
       const tw = .75 + .25 * Math.sin(t / 900 * p.sp + p.ph), a = Math.min(1, p.a * tw + p.lit * 1), size = p.r * (5 + p.lit * 8);
-      cx.globalAlpha = a; cx.drawImage(p.s, p.x - size / 2, p.y - size / 2, size, size);
+      put(p.s, p.x, p.y, size, a);
+    }
+    if (!reduce()) {
+      if (bar && document.documentElement.dataset.wp === "pond" && Math.random() < .3 * k) {
+        const r = bar.getBoundingClientRect(), x = r.left + r.width * rnd(.04, .96);
+        sparks.push({ x, y: r.top + 1, vx: rnd(-.3, .3), vy: -rnd(.8, 2.1), life: 0, max: rnd(55, 110), r: rnd(.4, 1), ph: rnd(0, 6.28), s: Math.random() < .75 ? 2 : 0 });
+      }
+      for (let i = sparks.length - 1; i >= 0; i--) {
+        const p = sparks[i]; p.life += k;
+        if (p.life >= p.max) { sparks.splice(i, 1); continue; }
+        p.x += (p.vx + Math.sin(t / 380 + p.ph) * .28) * k; p.y += p.vy * k; p.vy *= Math.pow(.992, k);
+        const f = p.life / p.max, a = Math.min(1, f * 8) * (1 - f * f), size = p.r * (7 - f * 3);
+        cx.globalCompositeOperation = "lighter";   // additive, so the tiny embers read as bright points
+        put(p.s, p.x, p.y, size, a); put(p.s, p.x, p.y, size / 2, a); put(p.s, p.x, p.y, size / 3, a);
+        cx.globalCompositeOperation = "source-over";
+      }
     }
     cx.globalAlpha = 1;
   };
   let lastT = 0;
-  const loop = t => { raf = requestAnimationFrame(loop); if (t - lastT < 33) return; lastT = t; draw(t); };   // ~30fps is plenty for slow drifting dots
+  const SPEED = 1.5;   // overall drift speed of the particles (1 = the original speed)
+  const loop = t => { raf = requestAnimationFrame(loop); if (t - lastT < (bar || sparks.length || busy ? 14 : 33)) return;   // full speed only while sparks fly, ~30fps otherwise
+     const k = Math.min(4, (t - lastT) / 16.67) * SPEED; lastT = t; draw(t, k); };   // ~30fps is plenty for slow drifting dots
   document.addEventListener("visibilitychange", () => { if (!on || reduce()) return; cancelAnimationFrame(raf); if (!document.hidden) raf = requestAnimationFrame(loop); });
   addEventListener("pointermove", e => { mx = e.clientX; my = e.clientY; if (on && reduce()) draw(0); }, { passive: true });
   document.addEventListener("mouseout", e => { if (!e.relatedTarget) mx = my = -1e4; });   // pointer left the window
@@ -960,7 +1052,7 @@ const WIDGETS = {
     if (!/^[a-z\d](?:[a-z\d-]{0,38})$/i.test(user)) { b.innerHTML = `<div class="muted">set a github user in edit mode</div>`; return; }
     const ago = t => { const m = Math.max(1, Math.round((Date.now() - new Date(t)) / 6e4)); return m < 60 ? m + "m" : m < 1440 ? Math.round(m / 60) + "h" : Math.round(m / 1440) + "d"; };
     const key = "gh4." + user.toLowerCase(), c = store.get(key, null);
-    let d = c && Date.now() - c.t < 6e5 ? c : null;   // cached for 10 minutes (the unauthenticated API allows few requests)
+    let d = c && Date.now() - c.t < 3e4 ? c : null;   // only cached for 30s, so a reload fetches fresh commits (the unauthenticated search API allows about 10 requests a minute)
     if (!d) {
       b.innerHTML = `<div class="muted">loading…</div>`;
       try {
@@ -971,7 +1063,7 @@ const WIDGETS = {
         month.forEach(i => { const k = 6 - Math.floor((today - new Date(new Date(i.commit.author.date).setHours(0, 0, 0, 0))) / day); if (k >= 0 && k < 7) days[k]++; });
         d = { t: Date.now(), days, total: month.length, items: latest.map(i => ({ msg: i.commit.message.split("\n")[0], body: i.commit.message.split("\n").slice(1).join("\n").trim().slice(0, 600), repo: i.repository.full_name, url: i.html_url, t: i.commit.author.date })) };
         store.set(key, d);
-      } catch { b.innerHTML = `<div class="muted">couldn't load (offline, unknown user or rate limit)</div>`; return; }
+      } catch { if (c) d = c; else { b.innerHTML = `<div class="muted">couldn't load (offline, unknown user or rate limit)</div>`; return; } }   // on a failed refresh (e.g. rate limit) keep showing the last result
     }
     const max = Math.max(1, ...d.days), bw = 30, gap = 8, H = 34;
     const graph = `<svg class="ghg" viewBox="0 0 ${7 * (bw + gap) - gap} ${H}" role="img" aria-label="commits per day, past week">${d.days.map((n, i) => `<rect x="${i * (bw + gap)}" y="${H - Math.max(2, n / max * H)}" width="${bw}" height="${Math.max(2, n / max * H)}" rx="2" opacity="${n ? .9 : .22}"/>`).join("")}</svg><div class="ghm">${d.total >= 100 ? "100+" : d.total} commits in public repos · past week</div>`;
