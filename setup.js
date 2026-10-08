@@ -8,11 +8,15 @@ window.SETUP = {
   searchUrl: "https://www.startpage.com/sp/search",  // any engine using ?q=
   askUrl: "https://www.perplexity.ai/search",        // second search bar (AI answers); any ?q= endpoint
   noAiBefore: "2022-01-01",                          // the "no ai" toggle limits results to before this date
+  favicons: true,                                    // true = show each site's own favicon (loaded from that site); false = letter badges only
   weather: { city: "Berlin", lat: 52.52, lon: 13.41 }, // coordinates: open-meteo.com
-  wallpapers: ["dusk", "moss", "ink"],               // palettes defined in the CSS; first = default
-  links: {                                           // group name -> [label, url]
+  themes: ["dusk", "moss", "ink", "matrix", "minimal", "artist", "cyber", "medieval", "sketch"], // the theme button cycles through these; first = default
+  greetings: {                                       // text of the greeting by time of day (any language)
+    night: "still up", morning: "good morning", afternoon: "good afternoon", evening: "good evening"
+  },
+  links: {                                           // group name -> [label, url, optional icon url]
     "daily": [
-      ["Proton Mail", "https://mail.proton.me"],
+      ["Proton Mail", "https://mail.proton.me", "https://mail.proton.me/assets/favicon.ico"],
       ["OpenStreetMap", "https://www.openstreetmap.org"],
       ["Internet Archive", "https://archive.org"],
       ["Wikipedia", "https://www.wikipedia.org"]
@@ -26,7 +30,7 @@ window.SETUP = {
     "media": [
       ["YouTube", "https://www.youtube.com"],
       ["Reddit", "https://www.reddit.com"],
-      ["Bandcamp", "https://bandcamp.com"],
+      ["Bandcamp", "https://bandcamp.com", "https://s4.bcbits.com/img/favicon/favicon.ico"],
       ["Hacker News", "https://news.ycombinator.com"]
     ]
   },

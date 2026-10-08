@@ -23,18 +23,52 @@
   --r0:#b5776b;--r1:#8f5a55;--r2:#6a4348;--r3:#472e38;--r4:#2c1d2a;--star:#fff;
   --text:#2b1d26;--muted:#6e5560;--accent:#b8321f;--accent2:#6a4a8c;--green:#4d7a46;--blue:#3b6ea5;--pink:#b8475f;
   --panel:rgba(250,240,224,.7);--line:rgba(43,29,38,.2);--ink:#fff}
-:root{--mono:ui-monospace,"JetBrains Mono","SF Mono",Menlo,Consolas,monospace}
+:root{--mono:ui-monospace,"JetBrains Mono","SF Mono",Menlo,Consolas,monospace;--head:var(--mono);--fs:14px;
+  --rad:14px;--pill:999px;--bw:1px;--bs:solid;--shadow:0 18px 50px rgba(0,0,0,.28);--blur:16px;--clip:none;--grain:.14}
+
+/* ---- more themes: each sets colors plus shape/type variables; its artwork is drawn in paint() ---- */
+:root[data-wp=matrix]{
+  --sky1:#000a03;--sky2:#001a08;--sky3:#003a14;--text:#b9ffc8;--muted:#5fae77;--accent:#00ff66;--accent2:#7dffb0;--green:#00ff66;--blue:#3be0a0;--pink:#9dffb8;
+  --panel:rgba(0,12,4,.74);--line:rgba(0,255,102,.3);--ink:#001a08;--rad:2px;--pill:3px;--shadow:0 0 22px rgba(0,255,102,.14);--blur:3px;--grain:.06}
+:root[data-wp=minimal]{
+  --mono:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--fs:14px;
+  --sky1:#f7f7f4;--text:#141414;--muted:#7a7a75;--accent:#141414;--accent2:#555;--green:#8a8a85;--blue:#b3b3ad;--pink:#d4d4ce;
+  --panel:rgba(255,255,255,.86);--line:#e2e2dc;--ink:#fff;--rad:8px;--pill:8px;--shadow:none;--blur:0px;--grain:0}
+:root[data-wp=artist]{
+  --mono:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;--fs:16px;
+  --sky1:#f3ead8;--text:#231a14;--muted:#7a6a5a;--accent:#d94f30;--accent2:#2b59c3;--green:#3a8f6b;--blue:#2b59c3;--pink:#e8a0b4;
+  --panel:rgba(255,250,238,.82);--line:rgba(35,26,20,.24);--ink:#fff8ec;--rad:3px;--pill:4px;--shadow:7px 7px 0 rgba(35,26,20,.14);--blur:2px;--grain:.1}
+:root[data-wp=cyber]{
+  --sky1:#07030f;--text:#e7f7ff;--muted:#8aa0c8;--accent:#ff2bd6;--accent2:#00f0ff;--green:#f5ff3a;--blue:#00f0ff;--pink:#ff2bd6;
+  --panel:rgba(12,6,28,.76);--line:rgba(0,240,255,.38);--ink:#07030f;--rad:0;--pill:0;--shadow:0 0 28px rgba(255,43,214,.16);--blur:6px;--grain:.08;
+  --clip:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,16px 100%,0 calc(100% - 16px))}
+:root[data-wp=medieval]{
+  --mono:"Palatino Linotype",Palatino,"Book Antiqua","Iowan Old Style",Georgia,serif;--fs:16px;
+  --sky1:#e8d5a8;--sky2:#d9bf86;--sky3:#c9a566;--text:#2b1a0e;--muted:#6b4f33;--accent:#8b1a1a;--accent2:#1f4a7a;--green:#3f6b2e;--blue:#1f4a7a;--pink:#a0522d;
+  --panel:rgba(240,225,185,.84);--line:rgba(60,35,15,.6);--ink:#f6ebc8;--rad:4px;--pill:6px;--bw:3px;--bs:double;--shadow:0 8px 20px rgba(60,35,15,.3);--blur:2px;--grain:.12}
+:root[data-wp=sketch]{
+  --mono:"Segoe Print","Bradley Hand","Chalkboard SE","Marker Felt","Comic Sans MS",cursive;--fs:16px;
+  --sky1:#fbfaf4;--text:#222;--muted:#666;--accent:#ff6b4a;--accent2:#4a7cff;--green:#3dbb7a;--blue:#4a7cff;--pink:#ff8fb1;
+  --panel:rgba(255,254,248,.96);--line:#222;--ink:#fff;--rad:18px 6px 20px 8px/8px 18px 6px 20px;--pill:22px 8px 24px 10px/10px 22px 8px 24px;--bw:2px;--shadow:4px 4px 0 #222;--blur:0px;--grain:.05}
+:root[data-wp=matrix] .hero h1{text-shadow:0 0 18px rgba(0,255,102,.55)}
+:root[data-wp=cyber] .hero h1{text-shadow:2px 0 var(--accent),-2px 0 var(--accent2)}
+:root[data-wp=artist] .hero h1{font-style:italic;font-weight:500}
+:root[data-wp=medieval] .hero h1{font-variant:small-caps;letter-spacing:.01em}
+:root[data-wp=minimal] .hero h1,:root[data-wp=artist] .hero h1,:root[data-wp=medieval] .hero h1,:root[data-wp=sketch] .hero h1,
+:root[data-wp=minimal] .sect,:root[data-wp=artist] .sect,:root[data-wp=medieval] .sect,:root[data-wp=sketch] .sect{text-shadow:none}
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;color:var(--text);background:var(--sky1);font:14px/1.55 var(--mono);overflow-x:hidden}
+body{margin:0;min-height:100vh;color:var(--text);background:var(--sky1);font:var(--fs)/1.55 var(--mono);overflow-x:hidden}
 a{color:inherit;text-decoration:none}
 ::selection{background:var(--accent);color:var(--ink)}
 #wall{position:fixed;inset:0;width:100%;height:100%;z-index:0}
-#grain{position:fixed;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;opacity:.14;mix-blend-mode:overlay}
+#grain{position:fixed;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;opacity:var(--grain);mix-blend-mode:overlay}
+#fx{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;display:none;opacity:.5}
+:root[data-wp=matrix] #fx{display:block}
 
 /* floating status bar */
 #top{position:fixed;z-index:5;top:14px;left:50%;transform:translateX(-50%);width:min(1100px,calc(100% - 28px));
-  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:7px 10px;border-radius:999px;
-  background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);font-size:13px}
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:7px 10px;border-radius:var(--pill);
+  background:var(--panel);border:var(--bw) var(--bs) var(--line);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));font-size:13px}
 #top .l,#top .r{display:flex;gap:8px;align-items:center}
 #top .r{justify-content:flex-end}
 .ws{display:flex;gap:6px;padding:0 8px}
@@ -42,13 +76,13 @@ a{color:inherit;text-decoration:none}
 .ws i:first-child{background:var(--accent);width:22px;border-radius:9px}
 #clock{font-weight:600;letter-spacing:.04em}
 #date{color:var(--muted)}
-.pill{font:inherit;font-size:12px;color:var(--text);background:rgba(127,127,127,.14);border:0;border-radius:999px;padding:5px 12px;cursor:pointer;transition:.15s}
+.pill{font:inherit;font-size:12px;color:var(--text);background:rgba(127,127,127,.14);border:0;border-radius:var(--pill);padding:5px 12px;cursor:pointer;transition:.15s}
 .pill:hover,.pill:focus-visible{background:var(--accent);color:var(--ink);outline:none}
 
 main{position:relative;z-index:2;max-width:1100px;margin:0 auto;padding:86px 14px 120px}
 
 /* windows */
-.win{background:var(--panel);border:1px solid var(--line);border-radius:14px;backdrop-filter:blur(16px) saturate(1.2);-webkit-backdrop-filter:blur(16px) saturate(1.2);box-shadow:0 18px 50px rgba(0,0,0,.28);overflow:hidden;break-inside:avoid;margin-bottom:16px}
+.win{background:var(--panel);border:var(--bw) var(--bs) var(--line);border-radius:var(--rad);backdrop-filter:blur(var(--blur)) saturate(1.2);-webkit-backdrop-filter:blur(var(--blur)) saturate(1.2);box-shadow:var(--shadow);clip-path:var(--clip);overflow:hidden;break-inside:avoid;margin-bottom:16px}
 .win>header{display:flex;align-items:center;gap:7px;padding:10px 14px;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted)}
 .win>header i{width:11px;height:11px;border-radius:50%;background:#ff6b6b}
 .win>header i:nth-child(2){background:#ffcf5c}
@@ -58,10 +92,10 @@ main{position:relative;z-index:2;max-width:1100px;margin:0 auto;padding:86px 14p
 
 /* hero */
 .hero{padding:6vh 0 4vh;text-align:center}
-.hero h1{margin:0;font:600 clamp(2rem,6vw,4rem)/1.05 var(--mono);letter-spacing:-.04em;text-shadow:0 4px 40px rgba(0,0,0,.35)}
+.hero h1{margin:0;font:600 clamp(2rem,6vw,4rem)/1.05 var(--head);letter-spacing:-.04em;text-shadow:0 4px 40px rgba(0,0,0,.35)}
 .hero h1 em{font-style:normal;color:var(--accent)}
 .hero p{margin:10px 0 0;opacity:.8}
-.sb{display:flex;align-items:center;gap:12px;margin:26px auto 0;max-width:640px;padding:6px 8px 6px 20px;border-radius:999px;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:.2s}
+.sb{display:flex;align-items:center;gap:12px;margin:26px auto 0;max-width:640px;padding:6px 8px 6px 20px;border-radius:var(--pill);background:var(--panel);border:var(--bw) var(--bs) var(--line);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));transition:.2s}
 #ask{margin-top:12px;max-width:520px;padding-top:3px;padding-bottom:3px}
 #ask input{font-size:14px;padding:8px 0}
 #ask b{color:var(--accent2)}
@@ -78,7 +112,7 @@ main{position:relative;z-index:2;max-width:1100px;margin:0 auto;padding:86px 14p
 .sb b{color:var(--accent)}
 .sb input{flex:1;min-width:0;font:inherit;font-size:16px;background:none;border:0;color:var(--text);padding:11px 0;outline:none}
 .sb input::placeholder{color:var(--muted)}
-.sb>button:not(.tog){font:inherit;border:0;border-radius:999px;background:var(--accent);color:var(--ink);padding:9px 18px;cursor:pointer;font-weight:600}
+.sb>button:not(.tog){font:inherit;border:0;border-radius:var(--pill);background:var(--accent);color:var(--ink);padding:9px 18px;cursor:pointer;font-weight:600}
 
 /* links */
 .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:26px}
@@ -90,6 +124,12 @@ main{position:relative;z-index:2;max-width:1100px;margin:0 auto;padding:86px 14p
 .group a:nth-of-type(4n+2) .g{background:var(--accent2)}
 .group a:nth-of-type(4n+3) .g{background:var(--green)}
 .group a:nth-of-type(4n+4) .g{background:var(--blue)}
+.g{position:relative;overflow:hidden}
+.g b{font-weight:700}
+.g img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:4px;display:none}
+.g.ic{background:rgba(255,255,255,.92)!important}
+.g.ic b{visibility:hidden}
+.g.ic img{display:block}
 .group a span.n{flex:1}
 .group a small{color:var(--muted);font-size:11px;opacity:0;transition:.15s}
 .group a:hover small,.group a:focus-visible small{opacity:1}
@@ -97,14 +137,14 @@ main{position:relative;z-index:2;max-width:1100px;margin:0 auto;padding:86px 14p
 .sect{display:flex;align-items:center;gap:12px;margin:34px 4px 14px;font-size:12px;color:var(--text);opacity:.8;text-shadow:0 1px 8px rgba(0,0,0,.3)}
 .sect::after{content:"";flex:1;height:1px;background:var(--line)}
 .widgets{columns:3 300px;column-gap:16px}
-.big{font:700 3.2rem/1 var(--mono);letter-spacing:-.05em}
+.big{font:700 3.2rem/1 var(--head);letter-spacing:-.05em}
 .muted{color:var(--muted)}
 .win ul{list-style:none;margin:0;padding:0}
 .news li{padding:8px 0;border-bottom:1px dashed var(--line)}
 .news li:last-child{border:0}
 .news a:hover{color:var(--accent)}
 .news small{display:block;color:var(--muted);font-size:11px}
-textarea,.win input[type=text]{width:100%;font:inherit;color:var(--text);background:rgba(127,127,127,.12);border:1px solid transparent;border-radius:10px;padding:10px 12px;outline:none}
+textarea,.win input[type=text]{width:100%;font:inherit;color:var(--text);background:rgba(127,127,127,.12);border:1px solid transparent;border-radius:min(var(--rad),10px);padding:10px 12px;outline:none}
 textarea:focus,.win input[type=text]:focus{border-color:var(--accent)}
 textarea{min-height:140px;resize:vertical}
 .todo li{display:flex;gap:10px;align-items:center;padding:5px 0}
@@ -130,12 +170,13 @@ textarea{min-height:140px;resize:vertical}
 </head>
 <body>
 <svg id="wall" aria-hidden="true" preserveAspectRatio="xMidYMax slice" viewBox="0 0 1600 900"></svg>
+<canvas id="fx" aria-hidden="true"></canvas>
 <svg id="grain" aria-hidden="true"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 1.2 -.1"/></filter><rect width="100%" height="100%" filter="url(#n)"/></svg>
 
 <nav id="top">
   <div class="l"><div class="ws"><i></i><i></i><i></i></div></div>
   <div><span id="clock"></span> <span id="date"></span></div>
-  <div class="r"><button class="pill" id="wp" title="Change wallpaper">wallpaper</button><button class="pill" id="customize">widgets</button></div>
+  <div class="r"><button class="pill" id="wp" title="Change theme">theme</button><button class="pill" id="customize">widgets</button></div>
 </nav>
 
 <main>
@@ -163,11 +204,15 @@ const CONFIG = Object.assign({
   searchUrl: "https://www.startpage.com/sp/search",
   askUrl: "https://www.perplexity.ai/search",
   noAiBefore: "2022-01-01",
+  favicons: true,
   weather: { city: "Berlin", lat: 52.52, lon: 13.41 },
-  wallpapers: ["dusk", "moss", "ink"],
+  greetings: {},
   links: {},
   defaultWidgets: ["weather", "news", "progress", "notes", "todo", "timer"]
 }, window.SETUP, window.SETUP_LOCAL);
+const ALL_THEMES = ["dusk", "moss", "ink", "matrix", "minimal", "artist", "cyber", "medieval", "sketch"];
+const THEMES = CONFIG.themes || CONFIG.wallpapers || ALL_THEMES;
+const GREET = Object.assign({ night: "still up", morning: "good morning", afternoon: "good afternoon", evening: "good evening" }, CONFIG.greetings);
 
 const $ = (s, r = document) => r.querySelector(s);
 const store = {
@@ -181,7 +226,7 @@ function tick() {
   const d = new Date(), h = d.getHours(), p = n => String(n).padStart(2, "0");
   $("#clock").textContent = `${p(h)}:${p(d.getMinutes())}`;
   $("#date").textContent = "· " + d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
-  const g = h < 5 ? "still up" : h < 12 ? "good morning" : h < 18 ? "good afternoon" : "good evening";
+  const g = h < 5 ? GREET.night : h < 12 ? GREET.morning : h < 18 ? GREET.afternoon : GREET.evening;
   $("#greeting").innerHTML = g + (CONFIG.name ? `, <em>${esc(CONFIG.name)}</em>` : "<em>.</em>");
   $("#sub").textContent = d.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" });
 }
@@ -198,40 +243,163 @@ $("#search").addEventListener("submit", () => {
 });
 syncNoAi();
 
-/* wallpaper: layered ridges, sun and stars generated as SVG from the palette's CSS variables */
-function paint() {
-  const cs = getComputedStyle(document.documentElement), v = n => cs.getPropertyValue(n).trim();
-  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  const W = 1600, H = 900;
-  let s = `<defs>
-    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${v("--sky1")}"/><stop offset=".55" stop-color="${v("--sky2")}"/><stop offset=".85" stop-color="${v("--sky3")}"/></linearGradient>
-    <linearGradient id="sun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${v("--sun1")}"/><stop offset="1" stop-color="${v("--sun2")}"/></linearGradient>
-    <linearGradient id="fog" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${v("--sky3")}" stop-opacity=".55"/><stop offset=".5" stop-color="${v("--sky3")}" stop-opacity="0"/></linearGradient>
-    <clipPath id="slits"><rect width="${W}" height="${H}"/></clipPath>
-    <mask id="stripes"><rect width="${W}" height="${H}" fill="#fff"/>${Array.from({ length: 6 }, (_, i) => `<rect x="0" y="${400 + i * 24}" width="${W}" height="${2 + i * 2.4}" fill="#000"/>`).join("")}</mask>
-    <filter id="blur"><feGaussianBlur stdDeviation="40"/></filter></defs>
-    <rect width="${W}" height="${H}" fill="url(#sky)"/>`;
-  for (let i = 0; i < 90; i++) s += `<circle cx="${(rnd() * W).toFixed(0)}" cy="${(rnd() * 420).toFixed(0)}" r="${(.5 + rnd() * 1.4).toFixed(1)}" fill="${v("--star")}" opacity="${(.15 + rnd() * .6).toFixed(2)}"/>`;
-  s += `<circle cx="1050" cy="440" r="200" fill="${v("--sun2")}" opacity=".35" filter="url(#blur)"/>
-        <circle cx="1050" cy="440" r="150" fill="url(#sun)" mask="url(#stripes)"/>`;
-  const ridge = (base, amp, f, color, fogOpacity) => {
-    const p1 = rnd() * 6, p2 = rnd() * 6, p3 = rnd() * 6; let d = `M0 ${H}`;
-    for (let x = 0; x <= W; x += 16) d += ` L${x} ${(base - amp * (Math.sin(x * f + p1) + .5 * Math.sin(x * f * 2.3 + p2) + .25 * Math.sin(x * f * 5.1 + p3))).toFixed(1)}`;
-    return `<path d="${d} L${W} ${H}Z" fill="${color}"/><path d="${d} L${W} ${H}Z" fill="url(#fog)" opacity="${fogOpacity}"/>`;
+/* themes: every theme's artwork is generated in code from its CSS variables (no image files).
+   To add one: add a [data-wp=name] block in the CSS, a PAINT.name function below, and the name to `themes` in setup.js. */
+const ridgeD = (c, base, amp, f) => {
+  const p1 = c.rnd() * 6, p2 = c.rnd() * 6, p3 = c.rnd() * 6; let d = `M0 ${c.H}`;
+  for (let x = 0; x <= c.W; x += 16) d += ` L${x} ${(base - amp * (Math.sin(x * f + p1) + .5 * Math.sin(x * f * 2.3 + p2) + .25 * Math.sin(x * f * 5.1 + p3))).toFixed(1)}`;
+  return `${d} L${c.W} ${c.H}Z`;
+};
+const PAINT = {
+  landscape(c) {
+    const { v, rnd, W, H } = c;
+    let s = `<defs>
+      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${v("--sky1")}"/><stop offset=".55" stop-color="${v("--sky2")}"/><stop offset=".85" stop-color="${v("--sky3")}"/></linearGradient>
+      <linearGradient id="sun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${v("--sun1")}"/><stop offset="1" stop-color="${v("--sun2")}"/></linearGradient>
+      <linearGradient id="fog" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${v("--sky3")}" stop-opacity=".55"/><stop offset=".5" stop-color="${v("--sky3")}" stop-opacity="0"/></linearGradient>
+      <mask id="stripes"><rect width="${W}" height="${H}" fill="#fff"/>${Array.from({ length: 6 }, (_, i) => `<rect x="0" y="${400 + i * 24}" width="${W}" height="${2 + i * 2.4}" fill="#000"/>`).join("")}</mask>
+      <filter id="blur"><feGaussianBlur stdDeviation="40"/></filter></defs>
+      <rect width="${W}" height="${H}" fill="url(#sky)"/>`;
+    for (let i = 0; i < 90; i++) s += `<circle cx="${(rnd() * W).toFixed(0)}" cy="${(rnd() * 420).toFixed(0)}" r="${(.5 + rnd() * 1.4).toFixed(1)}" fill="${v("--star")}" opacity="${(.15 + rnd() * .6).toFixed(2)}"/>`;
+    s += `<circle cx="1050" cy="440" r="200" fill="${v("--sun2")}" opacity=".35" filter="url(#blur)"/>
+          <circle cx="1050" cy="440" r="150" fill="url(#sun)" mask="url(#stripes)"/>`;
+    [[560, 55, .0042, "--r0", .9], [640, 70, .0036, "--r1", .6], [720, 80, .0031, "--r2", .35], [790, 70, .0027, "--r3", .15], [860, 55, .0022, "--r4", 0]].forEach(([b, a, f, col, fog]) => {
+      const d = ridgeD(c, b, a, f); s += `<path d="${d}" fill="${v(col)}"/><path d="${d}" fill="url(#fog)" opacity="${fog}"/>`;
+    });
+    return s;
+  },
+  matrix(c) {   // the falling code is a canvas (see rain()); this is just the dark backdrop
+    return `<defs><radialGradient id="mg" cx=".5" cy=".4" r=".8"><stop offset="0" stop-color="${c.v("--sky3")}" stop-opacity=".55"/><stop offset="1" stop-color="${c.v("--sky1")}"/></radialGradient></defs><rect width="${c.W}" height="${c.H}" fill="url(#mg)"/>`;
+  },
+  minimal(c) {
+    const { v } = c;
+    return `<rect width="${c.W}" height="${c.H}" fill="${v("--sky1")}"/><g fill="none" stroke="${v("--line")}">${[260, 380, 500, 620, 740].map(r => `<circle cx="1280" cy="250" r="${r}"/>`).join("")}</g><circle cx="1280" cy="250" r="7" fill="${v("--accent")}"/>`;
+  },
+  artist(c) {
+    const { v, rnd, W, H } = c, cols = [v("--accent"), v("--accent2"), v("--green"), v("--pink"), "#f2b632"];
+    let s = `<defs><filter id="rough" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency=".012 .03" numOctaves="3" seed="4"/><feDisplacementMap in="SourceGraphic" scale="46"/></filter></defs>
+      <rect width="${W}" height="${H}" fill="${v("--sky1")}"/><g filter="url(#rough)" style="mix-blend-mode:multiply" opacity=".78">`;
+    for (let i = 0; i < 9; i++) {
+      const x1 = rnd() * W * .4 - 100, y1 = rnd() * H, x2 = W * .6 + rnd() * W * .5, y2 = rnd() * H;
+      const cx = (x1 + x2) / 2 + (rnd() - .5) * 400, cy = (y1 + y2) / 2 + (rnd() - .5) * 500;
+      s += `<path d="M${x1 | 0} ${y1 | 0} Q${cx | 0} ${cy | 0} ${x2 | 0} ${y2 | 0}" fill="none" stroke="${cols[i % 5]}" stroke-width="${(60 + rnd() * 110) | 0}" stroke-linecap="round" opacity="${(.35 + rnd() * .35).toFixed(2)}"/>`;
+    }
+    s += `</g><g filter="url(#rough)">`;
+    for (let i = 0; i < 46; i++) s += `<circle cx="${(rnd() * W) | 0}" cy="${(rnd() * H) | 0}" r="${(2 + rnd() * 9).toFixed(1)}" fill="${cols[(rnd() * 5) | 0]}" opacity="${(.4 + rnd() * .4).toFixed(2)}"/>`;
+    return s + `</g>`;
+  },
+  cyber(c) {
+    const { v, rnd, W, H } = c, mag = v("--accent"), cy = v("--accent2"), yel = v("--green");
+    let s = `<defs><linearGradient id="cs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#07030f"/><stop offset=".55" stop-color="#2a0a4a"/><stop offset=".8" stop-color="#7a1470"/><stop offset="1" stop-color="${mag}"/></linearGradient>
+      <filter id="glow"><feGaussianBlur stdDeviation="30"/></filter>
+      <pattern id="scan" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="1.4" fill="#000" opacity=".35"/></pattern></defs>
+      <rect width="${W}" height="${H}" fill="url(#cs)"/>
+      <circle cx="1180" cy="330" r="130" fill="${mag}" opacity=".3" filter="url(#glow)"/>
+      <circle cx="1180" cy="330" r="95" fill="${mag}" opacity=".22"/><circle cx="1180" cy="330" r="95" fill="none" stroke="${cy}" stroke-width="3"/>`;
+    const layer = (base, minH, maxH, minW, maxW, fill, windows) => {
+      let x = -20, out = "";
+      while (x < W) {
+        const bw = minW + rnd() * (maxW - minW), bh = minH + rnd() * (maxH - minH);
+        out += `<rect x="${x | 0}" y="${(base - bh) | 0}" width="${bw | 0}" height="${bh | 0}" fill="${fill}"/>`;
+        if (windows) for (let wy = base - bh + 10; wy < base - 8; wy += 14) for (let wx = x + 6; wx < x + bw - 8; wx += 11)
+          if (rnd() < .22) out += `<rect x="${wx | 0}" y="${wy | 0}" width="5" height="7" fill="${[cy, mag, yel][(rnd() * 3) | 0]}" opacity="${(.5 + rnd() * .5).toFixed(2)}"/>`;
+        x += bw + rnd() * 6;
+      }
+      return out;
+    };
+    s += layer(790, 120, 330, 40, 90, "#12072a", false) + layer(790, 90, 260, 50, 110, "#0c0420", true);
+    s += `<rect y="790" width="${W}" height="${H - 790}" fill="#07030f"/>`;
+    for (let i = -22; i <= 22; i++) s += `<line x1="${800 + i * 40}" y1="790" x2="${800 + i * 260}" y2="${H}" stroke="${mag}" stroke-opacity=".5"/>`;
+    for (let k = 1; k <= 6; k++) s += `<line x1="0" x2="${W}" y1="${790 + k * k * 3.1}" y2="${790 + k * k * 3.1}" stroke="${mag}" stroke-opacity=".4"/>`;
+    return s + `<line x1="0" x2="${W}" y1="790" y2="790" stroke="${cy}" stroke-width="2"/><rect width="${W}" height="${H}" fill="url(#scan)"/>`;
+  },
+  medieval(c) {
+    const { v, W, H } = c, dark = "#2b1d10";
+    let s = `<defs><linearGradient id="ps" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${v("--sky2")}"/><stop offset=".6" stop-color="${v("--sky1")}"/><stop offset="1" stop-color="${v("--sky3")}"/></linearGradient>
+      <radialGradient id="vig" cx=".5" cy=".5" r=".75"><stop offset=".55" stop-color="#3b2410" stop-opacity="0"/><stop offset="1" stop-color="#3b2410" stop-opacity=".5"/></radialGradient>
+      <filter id="stain"><feTurbulence type="fractalNoise" baseFrequency=".008 .012" numOctaves="4" seed="9"/><feColorMatrix values="0 0 0 0 .45  0 0 0 0 .3  0 0 0 0 .12  0 0 0 1.3 -.45"/></filter></defs>
+      <rect width="${W}" height="${H}" fill="url(#ps)"/><rect width="${W}" height="${H}" filter="url(#stain)" opacity=".5"/>
+      <circle cx="260" cy="250" r="70" fill="${v("--accent")}" opacity=".16"/><circle cx="260" cy="250" r="46" fill="none" stroke="${v("--accent")}" stroke-width="2" opacity=".35"/>
+      <path d="${ridgeD(c, 700, 45, .0035)}" fill="#8a7d52" opacity=".6"/>`;
+    const tower = (tx, tw, top) => {
+      let t = `<rect x="${tx}" y="${top}" width="${tw}" height="${340 - top}"/>`;
+      for (let i = 0; i < tw / 14; i++) t += `<rect x="${tx + i * 14}" y="${top - 12}" width="9" height="13"/>`;
+      return t;
+    };
+    s += `<g transform="translate(1130 505)" fill="${dark}" opacity=".93"><rect x="0" y="150" width="280" height="190"/>`;
+    for (let i = 0; i < 14; i++) s += `<rect x="${i * 20}" y="138" width="12" height="14"/>`;
+    s += tower(-14, 56, 60) + tower(238, 56, 80) + tower(100, 80, 10)
+      + `<polygon points="-18,48 14,-15 46,48"/><polygon points="234,68 266,5 298,68"/>
+         <line x1="140" y1="-2" x2="140" y2="-44" stroke="${dark}" stroke-width="3"/><polygon points="140,-44 178,-33 140,-22" fill="${v("--accent")}"/>
+         <path d="M120 340 V205 a20 20 0 0 1 40 0 V340Z" fill="#e8d5a8" opacity=".22"/></g>
+      <path d="${ridgeD(c, 790, 40, .003)}" fill="#6b5e3a"/><path d="${ridgeD(c, 850, 30, .0026)}" fill="#3c3220"/>
+      <rect width="${W}" height="${H}" fill="url(#vig)"/>`;
+    return s;
+  },
+  sketch(c) {
+    const { v, rnd, W, H } = c, ink = "#222";
+    const star = (x, y, r) => {
+      let p = ""; for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * .45 : r; p += `${(x + Math.cos(a) * rr).toFixed(0)},${(y + Math.sin(a) * rr).toFixed(0)} `; }
+      return `<polygon points="${p}" fill="${v("--accent")}" fill-opacity=".35"/>`;
+    };
+    const cloud = (x, y, k) => `<path transform="translate(${x} ${y}) scale(${k})" d="M0 0 q-30 0 -30 -26 q0 -28 34 -26 q10 -30 46 -22 q34 -6 40 26 q30 2 28 24 q-2 24 -28 24Z" fill="#fff"/>`;
+    let s = `<defs><filter id="wob"><feTurbulence type="fractalNoise" baseFrequency=".03" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="5"/></filter></defs>
+      <rect width="${W}" height="${H}" fill="${v("--sky1")}"/>
+      <g fill="none" stroke="${ink}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#wob)" opacity=".8">
+      <circle cx="1390" cy="170" r="58" fill="${v("--accent")}" fill-opacity=".35"/>`;
+    for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6; s += `<line x1="${(1390 + Math.cos(a) * 78) | 0}" y1="${(170 + Math.sin(a) * 78) | 0}" x2="${(1390 + Math.cos(a) * 108) | 0}" y2="${(170 + Math.sin(a) * 108) | 0}"/>`; }
+    s += cloud(260, 190, 1.3) + cloud(1000, 120, 1) + cloud(1480, 480, .9) + star(120, 520, 26) + star(1500, 700, 20) + star(600, 80, 16) + star(900, 760, 18);
+    s += `<path d="M60 360 q25 -40 50 0 t50 0 t50 0 t50 0"/><path d="M1180 640 q25 -40 50 0 t50 0 t50 0"/>`;
+    s += `<path d="M0 830 q100 -60 200 0 ${"t200 0 ".repeat(7)}V900 H0Z" fill="${v("--green")}" fill-opacity=".25"/>`;
+    for (let i = 0; i < 26; i++) { const x = rnd() * W, y = 840 + rnd() * 40; s += `<path d="M${x | 0} ${y | 0} l-5 -16 M${x | 0} ${y | 0} l2 -18 M${x | 0} ${y | 0} l8 -14"/>`; }
+    return s + `</g>`;
+  }
+};
+const THEME_ART = { dusk: "landscape", moss: "landscape", ink: "landscape" };
+
+/* matrix: falling code on a canvas, drawn with the theme's colors; returns a stop function */
+function rain() {
+  const cv = $("#fx"), cx = cv.getContext("2d"), cs = getComputedStyle(document.documentElement);
+  const col = cs.getPropertyValue("--accent").trim(), bg = cs.getPropertyValue("--sky1").trim();
+  const size = 16, chars = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789";
+  let w, h, drops, raf, last = 0;
+  const reset = () => { w = cv.width = innerWidth; h = cv.height = innerHeight; cx.fillStyle = bg; cx.fillRect(0, 0, w, h); drops = Array.from({ length: Math.ceil(w / size) }, () => -Math.random() * 40); };
+  const step = () => {
+    cx.globalAlpha = .1; cx.fillStyle = bg; cx.fillRect(0, 0, w, h); cx.globalAlpha = 1;
+    cx.font = `${size}px monospace`;
+    drops.forEach((y, i) => {
+      cx.fillStyle = Math.random() < .04 ? "#e8fff0" : col;
+      cx.fillText(chars[(Math.random() * chars.length) | 0], i * size, y * size);
+      drops[i] = y * size > h && Math.random() > .975 ? 0 : y + 1;
+    });
   };
-  s += ridge(560, 55, .0042, v("--r0"), .9) + ridge(640, 70, .0036, v("--r1"), .6) + ridge(720, 80, .0031, v("--r2"), .35) + ridge(790, 70, .0027, v("--r3"), .15) + ridge(860, 55, .0022, v("--r4"), 0);
-  $("#wall").innerHTML = s;
+  const loop = t => { raf = requestAnimationFrame(loop); if (t - last > 55) { last = t; step(); } };
+  addEventListener("resize", reset); reset();
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) for (let i = 0; i < 160; i++) step(); else raf = requestAnimationFrame(loop);
+  return () => { cancelAnimationFrame(raf); removeEventListener("resize", reset); cx.clearRect(0, 0, cv.width, cv.height); };
 }
-const setWp = n => { document.documentElement.dataset.wp = n; paint(); };
+let stopFx = () => {};
+function paint() {
+  stopFx(); stopFx = () => {};
+  const t = document.documentElement.dataset.wp, cs = getComputedStyle(document.documentElement);
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const c = { v: n => cs.getPropertyValue(n).trim(), rnd, W: 1600, H: 900 };
+  $("#wall").innerHTML = (PAINT[THEME_ART[t] || t] || PAINT.landscape)(c);
+  if (t === "matrix") stopFx = rain();
+}
+const setWp = n => { document.documentElement.dataset.wp = n; $("#wp").textContent = "theme · " + n; paint(); };
 $("#wp").onclick = () => {
-  const list = CONFIG.wallpapers, n = list[(list.indexOf(document.documentElement.dataset.wp) + 1) % list.length];
+  const n = THEMES[(THEMES.indexOf(document.documentElement.dataset.wp) + 1) % THEMES.length];
   setWp(n); store.set("wp", n);
 };
 
 /* links */
 $("#links").innerHTML = Object.entries(CONFIG.links).map(([g, items]) =>
-  `<div class="group"><h2>${esc(g)}</h2>${items.map(([n, u]) =>
-    `<a href="${esc(u)}"><span class="g">${esc(n[0].toUpperCase())}</span><span class="n">${esc(n)}</span><small>${esc(new URL(u).hostname.replace(/^www\./, ""))}</small></a>`).join("")}</div>`).join("");
+  `<div class="group"><h2>${esc(g)}</h2>${items.map(([n, u, icon]) => {
+    const host = new URL(u).hostname.replace(/^www\./, "");
+    const img = CONFIG.favicons ? `<img alt="" src="${esc(icon || new URL("/favicon.ico", u).href)}" onload="this.parentNode.classList.add('ic')" onerror="this.remove()">` : "";
+    return `<a href="${esc(u)}"><span class="g"><b>${esc(n[0].toUpperCase())}</b>${img}</span><span class="n">${esc(n)}</span><small>${esc(host)}</small></a>`;
+  }).join("")}</div>`).join("");
 
 /* widgets: each has a title, a window-title `file`, and a render(body) function. Add your own here. */
 const WIDGETS = {
@@ -322,7 +490,7 @@ $("#customize").onclick = () => { sync(); $("#panel").classList.add("open"); };
 $("#close").onclick = () => $("#panel").classList.remove("open");
 $("#panel").onclick = e => { if (e.target.id === "panel") $("#panel").classList.remove("open"); };
 
-setWp(store.get("wp", CONFIG.wallpapers[0]));
+{ const saved = store.get("wp", THEMES[0]); setWp(THEMES.includes(saved) ? saved : THEMES[0]); }
 renderWidgets();
 </script>
 </body>

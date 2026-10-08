@@ -2,18 +2,24 @@
 
 A cozy, single-file browser start page. One `index.html`, no build step, no dependencies, no tracking. Set it as your homepage and make it yours.
 
-![dusk wallpaper](docs/dusk.jpg)
+![dusk theme](docs/dusk.jpg)
 
 | `moss` | `ink` |
 |---|---|
-| ![moss wallpaper](docs/moss.jpg) | ![ink wallpaper](docs/ink.jpg) |
+| ![moss theme](docs/moss.jpg) | ![ink theme](docs/ink.jpg) |
+| **`matrix`** | **`minimal`** |
+| ![matrix theme](docs/matrix.jpg) | ![minimal theme](docs/minimal.jpg) |
+| **`artist`** | **`cyber`** |
+| ![artist theme](docs/artist.jpg) | ![cyber theme](docs/cyber.jpg) |
+| **`medieval`** | **`sketch`** (hand drawn) |
+| ![medieval theme](docs/medieval.jpg) | ![sketch theme](docs/sketch.jpg) |
 
 ## Features
-- **Favorite links**, grouped, as a numbered list with letter badges (no external favicons).
+- **Favorite links**, grouped, with each site's own favicon (letter badge as a fallback; switch off with `favicons: false`).
 - **Two search bars:** Startpage (default, configurable) and a second one that asks Perplexity directly.
 - **"ai" toggle** inside the Startpage search bar (crossed out = on): adds `before:2022-01-01` to your query so results predate the AI boom (the choice is remembered; change the date with `noAiBefore`).
 - **Optional widgets** you can toggle on and off in the page: weather (Open-Meteo), Hacker News top stories, time progress (day / week / year), notes, to-do list, focus timer.
-- **Three generated wallpapers** (`dusk`, `moss`, `ink`) drawn in code as SVG, so there are no image files to license. Switch with the *wallpaper* button.
+- **Nine themes** with their own artwork, colors, fonts and shapes: `dusk`, `moss`, `ink`, `matrix` (falling code), `minimal`, `artist`, `cyber`, `medieval` and `sketch` (hand drawn). Everything is drawn in code, so there are no image files to license. Switch with the *theme* button; your pick is remembered.
 - **Private:** notes, to-dos, widget choices and wallpaper are stored only in your browser (`localStorage`).
 - Works offline apart from the weather and news widgets.
 
@@ -34,19 +40,21 @@ All your data lives in **`setup.js`**, a plain list of variables. Edit it, save,
 | `searchUrl` | Search engine endpoint that takes `?q=` |
 | `askUrl` | Endpoint for the second search bar (Perplexity by default) |
 | `noAiBefore` | Cut-off date used by the crossed-out "ai" toggle |
+| `favicons` | `true` (default) shows each site's own favicon, fetched from that site; `false` uses letter badges only. A link can take a third entry with a custom icon URL |
 | `weather` | City label plus latitude/longitude ([find coordinates](https://open-meteo.com)) |
-| `wallpapers` | Which palettes the wallpaper button cycles through |
+| `themes` | Which themes the theme button cycles through (first = default) |
+| `greetings` | Greeting text for night / morning / afternoon / evening, in any language |
 | `links` | Groups of `[label, url]` pairs |
 | `defaultWidgets` | Widgets enabled on first load |
 
 If `setup.js` is missing or leaves something out, sensible defaults are used.
 
-**Add a palette:** copy a `:root[data-wp=…]` block in the CSS of `index.html`, change the colors, and add its name to `wallpapers` in `setup.js`.
+**Add a theme:** copy a `:root[data-wp=…]` block in the CSS of `index.html` (colors, fonts, corner shapes), optionally add a `PAINT.yourname` function that draws its background as SVG, and add the name to `themes` in `setup.js`.
 
 **Add a widget:** add an entry to `WIDGETS` in `index.html` with a `title`, a window-title `file`, and a `render(body)` function. It then appears in the widgets panel automatically. Return a timer id from `render` if it needs cleaning up.
 
 ## Privacy
-The weather widget calls `api.open-meteo.com` and the news widget calls `hacker-news.firebaseio.com`. Turn those widgets off and the page makes no network requests at all.
+The weather widget calls `api.open-meteo.com` and the news widget calls `hacker-news.firebaseio.com`. With `favicons` on, the page also requests each linked site's own `favicon.ico` (no third-party icon service). Turn the widgets off and set `favicons: false` and the page makes no network requests at all.
 
 ## License
-MIT, see [LICENSE](LICENSE). The wallpapers are drawn by the page's own code, so there are no third-party assets.
+MIT, see [LICENSE](LICENSE). The themes are drawn by the page's own code, so there are no third-party assets.
