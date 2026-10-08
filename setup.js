@@ -2,6 +2,7 @@
    comfy-dashboard setup
    Edit the values below, save, and reload index.html. That's all.
    To share your setup, send this one file; to use someone else's, replace it.
+   You can also change most of this in the page itself: click "edit" in the top bar.
    ========================================================================== */
 window.SETUP = {
   name: "",                                          // shown in the greeting, e.g. "sam"

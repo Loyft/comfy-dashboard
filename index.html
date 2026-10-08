@@ -82,6 +82,31 @@ select.pill{appearance:none;-webkit-appearance:none;font-family:inherit;padding-
   background-position:calc(100% - 14px) 52%,calc(100% - 9px) 52%;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
 select.pill option{background:var(--sky1);color:var(--text)}
 .hnr{margin:0 0 10px}
+/* edit mode: a side drawer, so the page behind it updates live */
+#ed{position:fixed;z-index:9;top:68px;right:14px;bottom:14px;width:min(540px,calc(100% - 28px));margin:0;display:flex;flex-direction:column}
+#ed[hidden]{display:none}
+#ed>header #edclose{margin-left:auto}
+#edbody{flex:1;min-height:0;overflow:auto}
+#edbody h3{margin:24px 0 8px;font-size:12px;font-weight:400;letter-spacing:.08em;color:var(--muted)}
+#edbody h3:first-child{margin-top:0}
+#edbody h3::before{content:"/ ";color:var(--accent)}
+.fld{display:grid;grid-template-columns:100px 1fr;gap:10px;align-items:center;margin:6px 0;font-size:13px}
+.fld>span{color:var(--muted)}
+.fld input[type=checkbox]{justify-self:start;accent-color:var(--accent);width:18px;height:18px}
+.inl{display:flex;gap:6px}
+.egrp{border:1px dashed var(--line);border-radius:min(var(--rad),10px);padding:10px;margin:10px 0}
+.ghead{display:flex;gap:6px;margin-bottom:8px}
+.ghead input{font-weight:700}
+.lrow{display:grid;grid-template-columns:96px 1fr 84px auto;gap:6px;margin:5px 0;align-items:center}
+.acts{display:flex;gap:0}
+.mini{font:inherit;font-size:13px;color:var(--muted);background:none;border:0;cursor:pointer;padding:4px 7px;border-radius:6px}
+.mini:hover,.mini:focus-visible{color:var(--ink);background:var(--accent);outline:none}
+#edbody input.bad{border-color:#ff5d5d!important}
+#edbody .pill{margin:4px 6px 0 0}
+#edbody textarea{height:120px;min-height:80px;font-size:12px}
+#edbody .note{color:var(--muted);font-size:12px;margin:6px 0}
+#edbody label.chk{display:inline-flex;gap:6px;align-items:center;margin:4px 14px 4px 0;font-size:13px;cursor:pointer}
+#edbody label.chk input{accent-color:var(--accent)}
 /* theme dropdown: styled by the active theme's variables, so hovering an entry (which previews that theme) restyles it too */
 .tsel{position:relative}
 #wpb{width:130px;display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left}
@@ -180,7 +205,7 @@ textarea{min-height:140px;resize:vertical}
 #panel .win{width:340px;max-width:90vw;margin:0;background:var(--sky1)}
 #panel label{display:flex;gap:12px;padding:8px 0;cursor:pointer}
 #panel input{accent-color:var(--accent)}
-@media(max-width:700px){#date,#wx small{display:none}#wx{padding-left:4px}#wpb{width:104px}}
+@media(max-width:700px){#date,#wx small{display:none}#wx{padding-left:4px}#wpb{width:104px}#ed{top:60px;right:8px;left:8px;width:auto}.lrow{grid-template-columns:1fr 1fr}.fld{grid-template-columns:84px 1fr}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -192,7 +217,7 @@ textarea{min-height:140px;resize:vertical}
 <nav id="top">
   <div class="l"><span id="wx" title="weather"></span></div>
   <div><span id="clock"></span> <span id="date"></span></div>
-  <div class="r"><div class="tsel"><button type="button" class="pill" id="wpb" aria-haspopup="listbox" aria-expanded="false" title="Theme"><span></span><b>▾</b></button><ul id="wpm" role="listbox" aria-label="Theme" hidden></ul></div><button class="pill" id="customize">widgets</button></div>
+  <div class="r"><div class="tsel"><button type="button" class="pill" id="wpb" aria-haspopup="listbox" aria-expanded="false" title="Theme"><span></span><b>▾</b></button><ul id="wpm" role="listbox" aria-label="Theme" hidden></ul></div><button class="pill" id="customize">widgets</button><button class="pill" id="editbtn" aria-expanded="false" aria-controls="ed">edit</button></div>
 </nav>
 
 <main>
@@ -211,11 +236,22 @@ textarea{min-height:140px;resize:vertical}
 
 <div id="panel"><div class="win"><header><i></i><i></i><i></i><span>widgets.conf</span></header><div class="body"><div id="toggles"></div><div class="row"><button class="pill" id="close">done</button></div></div></div></div>
 
+<aside id="ed" class="win" hidden aria-label="Edit settings"><header><i></i><i></i><i></i><span>edit · settings</span><button class="pill" id="edclose">close</button></header><div class="body" id="edbody"></div></aside>
+
 <script src="setup.js"></script>
 <script src="setup.local.js"></script><!-- optional local override -->
 <script>
-/* Data lives in setup.js (with an optional local override). These are only fallbacks. */
-const CONFIG = Object.assign({
+const $ = (s, r = document) => r.querySelector(s);
+const store = {
+  get(k, d) { try { const v = localStorage.getItem("dash." + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem("dash." + k, JSON.stringify(v)); } catch {} }
+};
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const isHttp = u => { try { return /^https?:$/.test(new URL(u).protocol); } catch { return false; } };
+const normUrl = u => { u = String(u || "").trim(); if (!u) return ""; if (!/^[a-z][a-z0-9+.-]*:/i.test(u)) u = "https://" + u; return isHttp(u) ? u : ""; };
+
+/* Settings layers, lowest to highest: these fallbacks < setup.js < setup.local.js < edits made in the page (edit mode, kept in this browser). */
+const FALLBACK = {
   name: "",
   searchUrl: "https://www.startpage.com/sp/search",
   askUrl: "https://www.perplexity.ai/search",
@@ -226,17 +262,18 @@ const CONFIG = Object.assign({
   greetings: {},
   links: {},
   defaultWidgets: ["news", "progress", "notes", "todo", "timer"]
-}, window.SETUP, window.SETUP_LOCAL);
-const ALL_THEMES = ["dusk", "moss", "ink", "matrix", "minimal", "artist", "cyber", "medieval", "sketch"];
-const THEMES = CONFIG.themes || CONFIG.wallpapers || ALL_THEMES;
-const GREET = Object.assign({ night: "still up", morning: "good morning", afternoon: "good afternoon", evening: "good evening" }, CONFIG.greetings);
-
-const $ = (s, r = document) => r.querySelector(s);
-const store = {
-  get(k, d) { try { const v = localStorage.getItem("dash." + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
-  set(k, v) { try { localStorage.setItem("dash." + k, JSON.stringify(v)); } catch {} }
 };
-const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const ALL_THEMES = ["dusk", "moss", "ink", "matrix", "minimal", "artist", "cyber", "medieval", "sketch"];
+const DEFAULT_GREET = { night: "still up", morning: "good morning", afternoon: "good afternoon", evening: "good evening" };
+let CONFIG, THEMES, GREET;
+const edits = () => store.get("settings", {});
+function buildConfig() {
+  CONFIG = Object.assign({}, FALLBACK, window.SETUP, window.SETUP_LOCAL, edits());
+  THEMES = (CONFIG.themes || CONFIG.wallpapers || ALL_THEMES).filter(t => ALL_THEMES.includes(t));
+  if (!THEMES.length) THEMES = ALL_THEMES;
+  GREET = Object.assign({}, DEFAULT_GREET, CONFIG.greetings);
+}
+buildConfig();
 
 /* bar + greeting */
 function tick() {
@@ -261,8 +298,11 @@ async function loadWx() {
   } catch { el.textContent = ""; }
 }
 loadWx(); setInterval(loadWx, 15 * 60 * 1000);
-$("#search").action = CONFIG.searchUrl;
-$("#ask").action = CONFIG.askUrl;
+const applyEndpoints = () => {
+  $("#search").action = isHttp(CONFIG.searchUrl) ? CONFIG.searchUrl : FALLBACK.searchUrl;
+  $("#ask").action = isHttp(CONFIG.askUrl) ? CONFIG.askUrl : FALLBACK.askUrl;
+};
+applyEndpoints();
 /* "no ai": adds a before:<date> operator so results predate the AI boom (best-effort, depends on the engine honoring it) */
 let noAi = store.get("noai", false);
 const syncNoAi = () => $("#noai").setAttribute("aria-pressed", noAi);
@@ -421,13 +461,15 @@ const setWp = n => { document.documentElement.dataset.wp = n; paint(); };
 /* theme dropdown: hovering (or arrowing to) an entry previews that theme, clicking applies it */
 const menu = $("#wpm"), tbtn = $("#wpb");
 let committed = THEMES[0], pt;
-menu.innerHTML = THEMES.map(n => `<li role="option" tabindex="-1" data-t="${esc(n)}">${esc(n)}</li>`).join("");
+const buildMenu = () => { menu.innerHTML = THEMES.map(n => `<li role="option" tabindex="-1" data-t="${esc(n)}">${esc(n)}</li>`).join(""); };
+buildMenu();
 const lis = () => [...menu.querySelectorAll("li")];
 const markCur = () => lis().forEach(li => li.setAttribute("aria-selected", li.dataset.t === committed));
 const preview = n => { clearTimeout(pt); pt = setTimeout(() => { if (document.documentElement.dataset.wp !== n) setWp(n); }, 50); };
 const openMenu = () => { menu.hidden = false; tbtn.setAttribute("aria-expanded", "true"); markCur(); menu.querySelector(`[data-t="${committed}"]`).focus(); };
 const closeMenu = () => { if (menu.hidden) return; menu.hidden = true; tbtn.setAttribute("aria-expanded", "false"); preview(committed); };
-const commitWp = n => { committed = n; clearTimeout(pt); setWp(n); tbtn.firstElementChild.textContent = n; store.set("wp", n); markCur(); closeMenu(); tbtn.focus(); };
+const applyTheme = n => { committed = n; clearTimeout(pt); setWp(n); tbtn.firstElementChild.textContent = n; store.set("wp", n); markCur(); };
+const commitWp = n => { applyTheme(n); closeMenu(); tbtn.focus(); };
 tbtn.onclick = () => menu.hidden ? openMenu() : closeMenu();
 menu.addEventListener("mouseover", e => { const li = e.target.closest("li"); if (li) { li.focus({ preventScroll: true }); preview(li.dataset.t); } });
 menu.addEventListener("focusin", e => { const li = e.target.closest("li"); if (li) preview(li.dataset.t); });
@@ -438,18 +480,22 @@ menu.addEventListener("keydown", e => {
   if (e.key === "ArrowDown") { e.preventDefault(); items[(i + 1) % items.length].focus(); }
   else if (e.key === "ArrowUp") { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
   else if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (i >= 0) commitWp(items[i].dataset.t); }
-  else if (e.key === "Escape") { e.preventDefault(); closeMenu(); tbtn.focus(); }
+  else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); closeMenu(); tbtn.focus(); }
   else if (e.key === "Tab") closeMenu();
 });
 document.addEventListener("click", e => { if (!e.target.closest(".tsel")) closeMenu(); });
 
 /* links */
-$("#links").innerHTML = Object.entries(CONFIG.links).map(([g, items]) =>
-  `<div class="group"><h2>${esc(g)}</h2>${items.map(([n, u, icon]) => {
-    const host = new URL(u).hostname.replace(/^www\./, "");
-    const img = CONFIG.favicons ? `<img alt="" src="${esc(icon || new URL("/favicon.ico", u).href)}" onload="this.parentNode.classList.add('ic')" onerror="this.remove()">` : "";
-    return `<a href="${esc(u)}"><span class="g"><b>${esc(n[0].toUpperCase())}</b>${img}</span><span class="n">${esc(n)}</span><small>${esc(host)}</small></a>`;
-  }).join("")}</div>`).join("");
+function renderLinks() {
+  $("#links").innerHTML = Object.entries(CONFIG.links || {}).map(([g, items]) =>
+    `<div class="group"><h2>${esc(g)}</h2>${(items || []).map(([n, u, icon]) => {
+      u = normUrl(u); if (!u) return "";
+      const host = new URL(u).hostname.replace(/^www\./, ""), ic = icon && isHttp(icon) ? icon : new URL("/favicon.ico", u).href;
+      const img = CONFIG.favicons ? `<img alt="" src="${esc(ic)}" onload="this.parentNode.classList.add('ic')" onerror="this.remove()">` : "";
+      return `<a href="${esc(u)}"><span class="g"><b>${esc(String(n || "?")[0].toUpperCase())}</b>${img}</span><span class="n">${esc(n)}</span><small>${esc(host)}</small></a>`;
+    }).join("")}</div>`).join("");
+}
+renderLinks();
 
 /* widgets: each has a title, a window-title `file`, and a render(body) function. Add your own here. */
 const WIDGETS = {
@@ -545,6 +591,146 @@ const sync = () => document.querySelectorAll("#toggles input").forEach(i => i.ch
 $("#customize").onclick = () => { sync(); $("#panel").classList.add("open"); };
 $("#close").onclick = () => $("#panel").classList.remove("open");
 $("#panel").onclick = e => { if (e.target.id === "panel") $("#panel").classList.remove("open"); };
+
+/* ---------- edit mode ---------- */
+function applySettings(patch = {}) {
+  buildConfig();
+  const k = Object.keys(patch), all = !k.length, has = (...a) => a.some(x => k.includes(x));
+  if (all || has("name", "greetings")) tick();
+  if (all || has("searchUrl", "askUrl")) applyEndpoints();
+  if (all || has("links", "favicons")) renderLinks();
+  if (all || has("weather")) loadWx();
+  if (all || has("themes")) { buildMenu(); if (!THEMES.includes(committed)) applyTheme(THEMES[0]); else markCur(); }
+  if (has("hnRange")) { store.set("hnrange", CONFIG.hnRange); renderWidgets(); }
+}
+const ed = $("#ed"), edBody = $("#edbody");
+let ov = edits();
+const setOv = patch => { ov = Object.assign({}, ov, patch); store.set("settings", ov); applySettings(patch); };
+const unsetOv = keys => { ov = Object.assign({}, ov); keys.forEach(k => delete ov[k]); store.set("settings", ov); applySettings(Object.fromEntries(keys.map(k => [k, 0]))); };
+const groups = () => Object.entries(CONFIG.links || {}).map(([n, items]) => [n, (items || []).map(x => x.slice())]);
+const saveGroups = gs => { const o = {}; gs.forEach(([n, items]) => { o[n] = items; }); setOv({ links: o }); };
+const uniqueName = (gs, base) => { let n = base, i = 2; while (gs.some(([g]) => g === n)) n = `${base} ${i++}`; return n; };
+const HN_OPTS = { front: "front page", hour: "top · past hour", day: "top · today", week: "top · this week", month: "top · this month" };
+const GREET_KEYS = ["night", "morning", "afternoon", "evening"];
+const effective = () => ({ name: CONFIG.name, searchUrl: CONFIG.searchUrl, askUrl: CONFIG.askUrl, noAiBefore: CONFIG.noAiBefore, favicons: !!CONFIG.favicons, hnRange: CONFIG.hnRange, weather: CONFIG.weather, themes: THEMES, greetings: GREET, links: CONFIG.links });
+const exportText = () => `window.SETUP_LOCAL = ${JSON.stringify(effective(), null, 2)};\n`;
+function sanitize(o) {
+  const out = {};
+  if (typeof o.name === "string") out.name = o.name;
+  for (const k of ["searchUrl", "askUrl"]) if (isHttp(o[k])) out[k] = o[k];
+  if (/^\d{4}-\d{2}-\d{2}$/.test(o.noAiBefore)) out.noAiBefore = o.noAiBefore;
+  if (typeof o.favicons === "boolean") out.favicons = o.favicons;
+  if (o.hnRange in HN_OPTS) out.hnRange = o.hnRange;
+  if (o.weather && isFinite(o.weather.lat) && isFinite(o.weather.lon)) out.weather = { city: String(o.weather.city || ""), lat: +o.weather.lat, lon: +o.weather.lon };
+  if (Array.isArray(o.themes)) { const t = o.themes.filter(x => ALL_THEMES.includes(x)); if (t.length) out.themes = t; }
+  if (o.greetings && typeof o.greetings === "object") { out.greetings = {}; for (const k of GREET_KEYS) if (typeof o.greetings[k] === "string") out.greetings[k] = o.greetings[k]; }
+  if (o.links && typeof o.links === "object") {
+    out.links = {};
+    for (const [g, items] of Object.entries(o.links)) if (Array.isArray(items))
+      out.links[g] = items.filter(x => Array.isArray(x) && typeof x[0] === "string" && normUrl(x[1])).map(x => { const r = [x[0], normUrl(x[1])]; if (x[2] && isHttp(x[2])) r.push(x[2]); return r; });
+  }
+  return out;
+}
+function renderEd() {
+  const c = CONFIG, sc = edBody.scrollTop, w = c.weather || FALLBACK.weather;
+  const fld = (label, key, ph = "") => `<label class="fld"><span>${label}</span><input type="text" data-k="${key}" value="${esc(c[key] ?? "")}" placeholder="${esc(ph)}"></label>`;
+  edBody.innerHTML = `
+    <h3>general</h3>
+    ${fld("name", "name")}
+    ${fld("search url", "searchUrl", FALLBACK.searchUrl)}
+    ${fld("ask url", "askUrl", FALLBACK.askUrl)}
+    ${fld("no-ai before", "noAiBefore", "YYYY-MM-DD")}
+    <label class="fld"><span>hn default</span><select class="pill" data-k="hnRange">${Object.entries(HN_OPTS).map(([k, l]) => `<option value="${k}"${k === c.hnRange ? " selected" : ""}>${l}</option>`).join("")}</select></label>
+    <label class="fld"><span>favicons</span><input type="checkbox" data-k="favicons"${c.favicons ? " checked" : ""}></label>
+    <h3>greetings</h3>
+    ${GREET_KEYS.map(k => `<label class="fld"><span>${k}</span><input type="text" data-g="${k}" value="${esc(GREET[k])}"></label>`).join("")}
+    <h3>location (weather)</h3>
+    <div class="fld"><span>find city</span><div class="inl"><input type="text" id="citysearch" placeholder="e.g. Halle"><button class="pill" data-act="geo">search</button></div></div>
+    <div id="geores"></div>
+    <label class="fld"><span>name</span><input type="text" data-w="city" value="${esc(w.city)}"></label>
+    <label class="fld"><span>lat / lon</span><div class="inl"><input type="text" data-w="lat" value="${esc(w.lat)}"><input type="text" data-w="lon" value="${esc(w.lon)}"></div></label>
+    <h3>links</h3>
+    ${groups().map(([g, items], gi) => `<div class="egrp">
+      <div class="ghead"><input type="text" data-gname="${gi}" value="${esc(g)}"><span class="acts"><button class="mini" data-act="gup" data-gi="${gi}" title="move up">↑</button><button class="mini" data-act="gdown" data-gi="${gi}" title="move down">↓</button><button class="mini" data-act="gdel" data-gi="${gi}" title="delete group">×</button></span></div>
+      ${items.map(([n, u, icon], li) => `<div class="lrow" data-gi="${gi}" data-li="${li}"><input type="text" data-lf="0" value="${esc(n)}" placeholder="label"><input type="text" data-lf="1" value="${esc(u)}" placeholder="https://…"><input type="text" data-lf="2" value="${esc(icon || "")}" placeholder="icon url"><span class="acts"><button class="mini" data-act="lup" data-gi="${gi}" data-li="${li}" title="move up">↑</button><button class="mini" data-act="ldown" data-gi="${gi}" data-li="${li}" title="move down">↓</button><button class="mini" data-act="ldel" data-gi="${gi}" data-li="${li}" title="delete link">×</button></span></div>`).join("")}
+      <button class="pill" data-act="addlink" data-gi="${gi}">+ link</button></div>`).join("")}
+    <button class="pill" data-act="addgroup">+ group</button>
+    <h3>themes in the dropdown</h3>
+    <div>${ALL_THEMES.map(t => `<label class="chk"><input type="checkbox" data-th="${t}"${THEMES.includes(t) ? " checked" : ""}>${t}</label>`).join("")}</div>
+    <h3>backup &amp; share</h3>
+    <p class="note">Edits are saved in this browser and override setup.js / setup.local.js. To keep them in a file, export and save as <b>setup.local.js</b>.</p>
+    <textarea id="bk" spellcheck="false" placeholder="export shows your settings here; paste JSON here and press import"></textarea>
+    <div><button class="pill" data-act="export">export</button><button class="pill" data-act="copy">copy</button><button class="pill" data-act="download">download setup.local.js</button><button class="pill" data-act="import">import</button><button class="pill" data-act="reset">reset edits</button></div>
+    <p class="note" id="bkmsg"></p>`;
+  edBody.scrollTop = sc;
+}
+async function geoSearch() {
+  const q = $("#citysearch", edBody).value.trim(), out = $("#geores", edBody);
+  if (!q) return;
+  out.textContent = "searching…";
+  try {
+    const j = await (await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=6&language=en&format=json`)).json();
+    out.innerHTML = (j.results || []).map(r => `<button class="pill" data-act="pick" data-city="${esc(r.name)}" data-lat="${r.latitude}" data-lon="${r.longitude}">${esc([r.name, r.admin1, r.country].filter(Boolean).join(", "))}</button>`).join("") || `<span class="note">nothing found</span>`;
+  } catch { out.textContent = "couldn't search (offline?)"; }
+}
+edBody.addEventListener("click", e => {
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  const a = b.dataset.act, gi = +b.dataset.gi, li = +b.dataset.li, gs = groups(), msg = t => { const m = $("#bkmsg", edBody); if (m) m.textContent = t; };
+  const swap = (arr, i, j) => { if (j < 0 || j >= arr.length) return false; [arr[i], arr[j]] = [arr[j], arr[i]]; return true; };
+  if (a === "gup" || a === "gdown") { if (swap(gs, gi, gi + (a === "gup" ? -1 : 1))) { saveGroups(gs); renderEd(); } }
+  else if (a === "gdel") { if (confirm(`Delete the group "${gs[gi][0]}" and its links?`)) { gs.splice(gi, 1); saveGroups(gs); renderEd(); } }
+  else if (a === "addgroup") { gs.push([uniqueName(gs, "new group"), []]); saveGroups(gs); renderEd(); }
+  else if (a === "addlink") { gs[gi][1].push(["new link", "https://example.org"]); saveGroups(gs); renderEd(); }
+  else if (a === "lup" || a === "ldown") { if (swap(gs[gi][1], li, li + (a === "lup" ? -1 : 1))) { saveGroups(gs); renderEd(); } }
+  else if (a === "ldel") { gs[gi][1].splice(li, 1); saveGroups(gs); renderEd(); }
+  else if (a === "geo") geoSearch();
+  else if (a === "pick") { setOv({ weather: { city: b.dataset.city, lat: +b.dataset.lat, lon: +b.dataset.lon } }); renderEd(); }
+  else if (a === "export") { const t = $("#bk", edBody); t.value = exportText(); t.select(); msg("Save this as setup.local.js next to index.html."); }
+  else if (a === "copy") { const t = $("#bk", edBody); if (!t.value) t.value = exportText(); t.select(); (navigator.clipboard ? navigator.clipboard.writeText(t.value) : Promise.reject()).then(() => msg("copied"), () => { try { document.execCommand("copy"); msg("copied"); } catch { msg("press Ctrl/Cmd+C to copy"); } }); }
+  else if (a === "download") { const url = URL.createObjectURL(new Blob([exportText()], { type: "text/javascript" })), l = document.createElement("a"); l.href = url; l.download = "setup.local.js"; l.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
+  else if (a === "import") {
+    const raw = $("#bk", edBody).value.trim().replace(/^window\.SETUP(?:_LOCAL)?\s*=\s*/, "").replace(/;\s*$/, "");
+    let obj; try { obj = JSON.parse(raw); } catch { msg("couldn't read that. Paste JSON without comments."); return; }
+    const clean = obj && typeof obj === "object" && !Array.isArray(obj) ? sanitize(obj) : {};
+    if (!Object.keys(clean).length) { msg("nothing usable found"); return; }
+    setOv(clean); renderEd(); msg("imported: " + Object.keys(clean).join(", "));
+  }
+  else if (a === "reset") { if (confirm("Discard all edits made in the page and go back to setup.js / setup.local.js?")) { ov = {}; try { localStorage.removeItem("dash.settings"); } catch {} applySettings(); renderEd(); } }
+});
+edBody.addEventListener("change", e => {
+  const t = e.target, d = t.dataset, bad = () => t.classList.add("bad"), ok = () => t.classList.remove("bad");
+  if (d.k) {
+    const v = t.type === "checkbox" ? t.checked : t.value.trim();
+    if (d.k === "searchUrl" || d.k === "askUrl") { if (v && !isHttp(v)) return bad(); ok(); if (!v) return unsetOv([d.k]); }
+    if (d.k === "noAiBefore") { if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return bad(); ok(); }
+    setOv({ [d.k]: v });
+  } else if (d.g) setOv({ greetings: Object.assign({}, CONFIG.greetings, { [d.g]: t.value }) });
+  else if (d.w) {
+    const w = Object.assign({}, CONFIG.weather); w[d.w] = d.w === "city" ? t.value : parseFloat(t.value);
+    if (!isFinite(w.lat) || !isFinite(w.lon)) return bad(); ok(); setOv({ weather: w });
+  } else if (d.gname !== undefined) {
+    const gs = groups(), gi = +d.gname, name = t.value.trim();
+    if (!name || gs.some((x, i) => i !== gi && x[0] === name)) return bad(); ok(); gs[gi][0] = name; saveGroups(gs);
+  } else if (d.lf !== undefined) {
+    const row = t.closest(".lrow"), gs = groups(), it = gs[+row.dataset.gi][1][+row.dataset.li], f = +d.lf;
+    let v = t.value.trim();
+    if (f === 0 && !v) return bad();
+    if (f === 1) { v = normUrl(v); if (!v) return bad(); t.value = v; }
+    if (f === 2 && v && !isHttp(v)) return bad();
+    ok(); if (f === 2) { it.length = 2; if (v) it[2] = v; } else it[f] = v;
+    saveGroups(gs);
+  } else if (d.th) {
+    const list = [...edBody.querySelectorAll("[data-th]:checked")].map(x => x.dataset.th);
+    if (!list.length) { t.checked = true; return; }
+    setOv({ themes: list });
+  }
+});
+edBody.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.id === "citysearch") { e.preventDefault(); geoSearch(); } });
+const openEd = () => { renderEd(); ed.hidden = false; $("#editbtn").setAttribute("aria-expanded", "true"); };
+const closeEd = () => { ed.hidden = true; $("#editbtn").setAttribute("aria-expanded", "false"); };
+$("#editbtn").onclick = () => ed.hidden ? openEd() : closeEd();
+$("#edclose").onclick = closeEd;
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !ed.hidden) closeEd(); });
 
 { const saved = store.get("wp", THEMES[0]); committed = THEMES.includes(saved) ? saved : THEMES[0]; setWp(committed); tbtn.firstElementChild.textContent = committed; markCur(); }
 renderWidgets();
