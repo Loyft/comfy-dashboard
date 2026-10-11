@@ -44,8 +44,11 @@
   --clip:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,16px 100%,0 calc(100% - 16px))}
 :root[data-wp=medieval]{
   --mono:"Palatino Linotype",Palatino,"Book Antiqua","Iowan Old Style",Georgia,serif;--fs:16px;
-  --sky1:#e8d5a8;--sky2:#d9bf86;--sky3:#c9a566;--text:#2b1a0e;--muted:#6b4f33;--accent:#8b1a1a;--accent2:#1f4a7a;--green:#3f6b2e;--blue:#1f4a7a;--pink:#a0522d;
-  --panel:rgba(240,225,185,.84);--line:rgba(60,35,15,.6);--ink:#f6ebc8;--rad:4px;--pill:6px;--bw:3px;--bs:double;--shadow:0 8px 20px rgba(60,35,15,.3);--blur:2px;--grain:.12}
+  --sky1:#e6d8bb;--sky2:#dccba6;--sky3:#cdb98c;--text:#4a3624;--muted:#7d6648;--accent:#a8503a;--accent2:#4f7289;--green:#7b8a56;--blue:#4f7289;--pink:#a1673f;
+  --panel:rgba(232,220,190,.92);--line:rgba(120,78,50,.6);--ink:#f1e6c8;--rad:3px;--pill:4px;--bw:2px;--bs:dashed;--shadow:0 5px 14px rgba(60,35,15,.2);--blur:1px;--grain:.12}
+/* faded like old cloth: panels and their contents are slightly bleached and sepia-toned, with a faint weave */
+:root[data-wp=medieval] .win,:root[data-wp=medieval] #top,:root[data-wp=medieval] .sb{background-image:repeating-linear-gradient(0deg,rgba(138,107,60,.07) 0 1px,transparent 1px 4px),repeating-linear-gradient(90deg,rgba(138,107,60,.07) 0 1px,transparent 1px 4px)}
+:root[data-wp=medieval] .win>*,:root[data-wp=medieval] #top>*,:root[data-wp=medieval] .sb>*{filter:sepia(.45) saturate(.55) contrast(.88) brightness(1.05);opacity:.88}
 :root[data-wp=sketch]{
   --mono:"Segoe Print","Bradley Hand","Chalkboard SE","Marker Felt","Comic Sans MS",cursive;--fs:16px;
   --sky1:#fbfaf4;--text:#222;--muted:#666;--accent:#ff6b4a;--accent2:#4a7cff;--green:#3dbb7a;--blue:#4a7cff;--pink:#ff8fb1;
@@ -154,7 +157,7 @@
 :root[data-wp=matrix] .hero h1{text-shadow:0 0 18px rgba(0,255,102,.55)}
 :root[data-wp=cyber] .hero h1{text-shadow:2px 0 var(--accent),-2px 0 var(--accent2)}
 :root[data-wp=artist] .hero h1{font-style:italic;font-weight:500}
-:root[data-wp=medieval] .hero h1{font-variant:small-caps;letter-spacing:.01em}
+:root[data-wp=medieval] .hero h1{font-variant:small-caps;letter-spacing:.06em;font-weight:700}
 :root[data-wp=minimal] .hero h1,:root[data-wp=artist] .hero h1,:root[data-wp=medieval] .hero h1,:root[data-wp=sketch] .hero h1,
 :root[data-wp=minimal] .sect,:root[data-wp=artist] .sect,:root[data-wp=medieval] .sect,:root[data-wp=sketch] .sect{text-shadow:none}
 *{box-sizing:border-box}
@@ -708,28 +711,78 @@ const PAINT = {
     for (let k = 1; k <= 6; k++) s += `<line x1="0" x2="${W}" y1="${790 + k * k * 3.1}" y2="${790 + k * k * 3.1}" stroke="${mag}" stroke-opacity=".4"/>`;
     return s + `<line x1="0" x2="${W}" y1="790" y2="790" stroke="${cy}" stroke-width="2"/><rect width="${W}" height="${H}" fill="url(#scan)"/>`;
   },
-  medieval(c) {
-    const { v, W, H } = c, dark = "#2b1d10";
-    let s = `<defs><linearGradient id="ps" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${v("--sky2")}"/><stop offset=".6" stop-color="${v("--sky1")}"/><stop offset="1" stop-color="${v("--sky3")}"/></linearGradient>
-      <radialGradient id="vig" cx=".5" cy=".5" r=".75"><stop offset=".55" stop-color="#3b2410" stop-opacity="0"/><stop offset="1" stop-color="#3b2410" stop-opacity=".5"/></radialGradient>
-      <filter id="stain"><feTurbulence type="fractalNoise" baseFrequency=".008 .012" numOctaves="4" seed="9"/><feColorMatrix values="0 0 0 0 .45  0 0 0 0 .3  0 0 0 0 .12  0 0 0 1.3 -.45"/></filter></defs>
-      <rect width="${W}" height="${H}" fill="url(#ps)"/><rect width="${W}" height="${H}" filter="url(#stain)" opacity=".5"/>
-      <circle cx="260" cy="250" r="70" fill="${v("--accent")}" opacity=".16"/><circle cx="260" cy="250" r="46" fill="none" stroke="${v("--accent")}" stroke-width="2" opacity=".35"/>
-      <path d="${ridgeD(c, 700, 45, .0035)}" fill="#8a7d52" opacity=".6"/>`;
-    const tower = (tx, tw, top) => {
-      let t = `<rect x="${tx}" y="${top}" width="${tw}" height="${340 - top}"/>`;
-      for (let i = 0; i < tw / 14; i++) t += `<rect x="${tx + i * 14}" y="${top - 12}" width="9" height="13"/>`;
-      return t;
+  medieval(c) {   // Bayeux Tapestry meme style: embroidered wool figures on creased linen, olive border, uncial captions
+    const { v, W, H } = c, ln = "#2b2018", skin = "#ecd8b2", steel = "#a79f86";
+    const wool = ["#b25a45", "#cfa94f", "#8a8450", "#2f3d52", "#c47a6a"];
+    const st = `stroke="${ln}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"`;
+    const limb = (d, col, w) => `<path d="${d}" fill="none" stroke="${ln}" stroke-width="${w + 4}" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+    const horse = (x, y, k, col, col2, col3, flip) => `<g transform="translate(${x} ${y}) scale(${flip ? -k : k} ${k})">
+      ${limb("M-60 -48 L-88 -28 L-124 -20", col2, 8)}${limb("M-46 -46 L-70 -22 L-98 -4", col, 8)}
+      <path d="M-84 -72 Q-112 -74 -128 -44 Q-110 -58 -90 -56Z" fill="${col2}" ${st}/>
+      <path d="M-86 -66 Q-88 -86 -62 -86 L34 -86 Q54 -94 64 -120 Q70 -138 88 -136 L104 -118 L122 -104 Q124 -92 110 -92 L96 -98 Q86 -92 78 -76 Q70 -56 54 -46 Q38 -36 8 -38 L-50 -38 Q-82 -42 -86 -66Z" fill="${col}" ${st}/>
+      <path d="M66 -122 Q74 -144 88 -140 L84 -128Z" fill="${col}" ${st}/><path d="M62 -112 q8 -12 14 -4 q4 -14 12 -6 q6 -12 12 -2" fill="none" stroke="${col2}" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="102" cy="-114" r="3" fill="${ln}"/><path d="M100 -112 Q84 -96 36 -84" fill="none" stroke="${ln}" stroke-width="2.2"/>
+      <path d="M-30 -86 H12 L10 -60 H-28Z" fill="${col3}" ${st}/>
+      ${limb("M48 -46 L76 -24 L104 -32", col2, 8)}${limb("M38 -44 L60 -18 L86 -8", col, 8)}
+      ${limb("M-6 -84 L16 -52", skin, 7)}
+      <path d="M-18 -84 Q-22 -128 -2 -142 L24 -140 Q32 -104 24 -84Z" fill="${steel}" ${st}/><path d="M-18 -84 L24 -84 L26 -72 L-20 -72Z" fill="${col3}" ${st}/>
+      <path d="M-2 -142 Q-6 -158 10 -162 Q26 -158 24 -140Z" fill="${skin}" ${st}/>
+      <path d="M-2 -150 Q0 -176 16 -172 Q28 -168 28 -150 L22 -150 Q14 -158 -2 -150Z" fill="${steel}" ${st}/><path d="M24 -166 V-150" fill="none" stroke="${ln}" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="18" cy="-156" r="1.8" fill="${ln}"/>
+      <path d="M-14 -138 Q12 -146 30 -136 Q30 -102 8 -66 Q-16 -100 -14 -138Z" fill="${col3}" ${st}/><path d="M8 -138 V-72 M-12 -108 H28" fill="none" stroke="${col}" stroke-width="6"/>
+      ${limb("M20 -126 L48 -122", skin, 6)}<path d="M-18 -106 L146 -150" fill="none" stroke="${ln}" stroke-width="4.5" stroke-linecap="round"/><path d="M138 -148 L168 -142 L146 -166Z" fill="${col}" ${st}/></g>`;
+    // standing man in a cloak, arms thrown out (like the "hey, focus" meme)
+    const man = (x, y, k, cloak, tunic) => `<g transform="translate(${x} ${y}) scale(${k})">
+      ${limb("M-6 -60 L-18 -12", "url(#hatch)", 11)}${limb("M8 -60 L22 -12", "url(#hatch)", 11)}
+      <path d="M-34 -16 q-6 -10 12 -8 l8 6 q-10 6 -20 2Z M12 -14 q4 -10 22 -6 l2 6 q-12 6 -24 0Z" fill="${ln}"/>
+      <path d="M-30 -80 L-34 -34 Q0 -24 34 -34 L30 -80Z" fill="${tunic}" ${st}/><path d="M-33 -44 Q0 -34 33 -44" fill="none" stroke="${wool[1]}" stroke-width="4"/>
+      <path d="M-20 -150 Q-32 -104 -50 -58 Q0 -44 50 -58 Q36 -104 20 -150Z" fill="${cloak}" ${st}/><path d="M-22 -142 Q0 -128 22 -142" fill="none" stroke="${ln}" stroke-width="2"/>
+      ${limb("M-18 -138 L-60 -164", cloak, 7)}${limb("M18 -138 L62 -154", cloak, 7)}
+      <path d="M-62 -168 l-12 -6 l2 11 l-8 5 l11 1 l4 5Z M62 -156 l12 -10 l3 12 l10 2 l-12 7Z" fill="${skin}" ${st}/>
+      <circle cx="0" cy="-164" r="13" fill="${skin}" ${st}/><path d="M-13 -166 Q-12 -182 0 -180 Q13 -182 13 -166 Q6 -174 -13 -166Z" fill="${ln}"/>
+      <path d="M-8 -158 Q0 -153 8 -158" fill="none" stroke="${ln}" stroke-width="3"/><circle cx="-4" cy="-166" r="1.4" fill="${ln}"/><circle cx="5" cy="-166" r="1.4" fill="${ln}"/></g>`;
+    const flames = (x, y, w, h, ph) => {
+      let f = "";
+      for (let i = 0, fx = x; fx < x + w; i++, fx += 26) { const hh = h * (.55 + .45 * Math.abs(Math.sin(i * 1.7 + ph))), lean = (i % 2 ? 7 : -5); f += `<path d="M${fx} ${y} Q${fx + 3} ${y - hh * .45} ${fx + 13 + lean} ${y - hh} Q${fx + 22} ${y - hh * .45} ${fx + 26} ${y}Z" fill="${i % 2 ? wool[1] : "#e2c273"}" stroke="${wool[0]}" stroke-width="2.6" stroke-linejoin="round"/><path d="M${fx + 9} ${y - 4} Q${fx + 11} ${y - hh * .4} ${fx + 13 + lean} ${y - hh * .72}" fill="none" stroke="${wool[0]}" stroke-width="2.2" opacity=".75"/>`; }
+      return f;
     };
-    s += `<g transform="translate(1130 505)" fill="${dark}" opacity=".93"><rect x="0" y="150" width="280" height="190"/>`;
-    for (let i = 0; i < 14; i++) s += `<rect x="${i * 20}" y="138" width="12" height="14"/>`;
-    s += tower(-14, 56, 60) + tower(238, 56, 80) + tower(100, 80, 10)
-      + `<polygon points="-18,48 14,-15 46,48"/><polygon points="234,68 266,5 298,68"/>
-         <line x1="140" y1="-2" x2="140" y2="-44" stroke="${dark}" stroke-width="3"/><polygon points="140,-44 178,-33 140,-22" fill="${v("--accent")}"/>
-         <path d="M120 340 V205 a20 20 0 0 1 40 0 V340Z" fill="#e8d5a8" opacity=".22"/></g>
-      <path d="${ridgeD(c, 790, 40, .003)}" fill="#6b5e3a"/><path d="${ridgeD(c, 850, 30, .0026)}" fill="#3c3220"/>
-      <rect width="${W}" height="${H}" fill="url(#vig)"/>`;
-    return s;
+    // the dog at its table (everything is fine)
+    const dog = (x, y, k) => `<g transform="translate(${x} ${y}) scale(${k})">
+      <g transform="translate(40 0)"><rect x="40" y="-92" width="150" height="14" fill="#c9a074" ${st}/>${[0, 1, 2, 3, 4].map(i => `<rect x="${52 + i * 26}" y="-104" width="14" height="12" fill="${wool[i % 2 ? 0 : 1]}" ${st}/>`).join("")}
+      <rect x="46" y="-78" width="138" height="60" fill="${wool[0]}" ${st}/><rect x="46" y="-58" width="138" height="14" fill="${wool[3]}" ${st}/><path d="M46 -66 H184" stroke="${wool[1]}" stroke-width="5"/>
+      <path d="M46 -18 L36 6 M184 -18 L194 6" stroke="${ln}" stroke-width="7" stroke-linecap="round"/></g>
+      ${limb("M22 -44 Q22 -20 12 2", "#d1a948", 12)}
+      <path d="M-6 4 L-2 -10 Q-12 -34 -2 -58 Q4 -90 14 -112 Q16 -128 24 -140 L34 -156 Q44 -164 56 -158 L72 -168 Q80 -162 72 -154 L60 -144 Q54 -132 48 -124 Q50 -104 52 -88 Q56 -66 50 -50 Q46 -34 34 -26 Q34 -12 38 -2 L46 6 L22 6 Q22 -8 18 -22 Q8 -14 8 4Z" fill="#d1a948" ${st}/>
+      <path d="M34 -156 L30 -140 L42 -150Z" fill="#a37c2c" ${st}/><path d="M26 -134 Q40 -126 50 -128" fill="none" stroke="${wool[0]}" stroke-width="5" stroke-linecap="round"/>
+      ${limb("M50 -96 L96 -90", "#d1a948", 8)}<path d="M92 -96 L110 -110" stroke="${ln}" stroke-width="5" stroke-linecap="round"/><circle cx="100" cy="-90" r="5" fill="#d1a948" ${st}/>
+      <circle cx="58" cy="-154" r="2.2" fill="${ln}"/><circle cx="74" cy="-162" r="2.4" fill="${ln}"/></g>`;
+    const tree = (x, y, k, col) => `<g transform="translate(${x} ${y}) scale(${k})"><path d="M0 0 Q-6 -40 0 -96" fill="none" stroke="${ln}" stroke-width="11" stroke-linecap="round"/><path d="M0 0 Q-6 -40 0 -96" fill="none" stroke="${wool[0]}" stroke-width="5" stroke-linecap="round"/>
+      ${[[-1, -30], [1, -48], [-1, -66], [1, -84], [0, -100]].map(([d, h]) => `<path d="M0 ${h} q${d * 44} -10 ${d * 38} -38 q-${d * 28} 6 -${d * 38} 38Z" fill="${col}" ${st}/>`).join("")}</g>`;
+    const wave = (y, up) => { let d = `M0 ${y}`; for (let x = 0; x <= W; x += 40) d += ` Q${x + 10} ${y + (up ? -8 : 8)} ${x + 20} ${y} T${x + 40} ${y}`; return d; };
+    const band = (top) => {   // embroidered olive border with a wavy edge
+      const y0 = top ? 0 : H - 52, e = top ? 52 : H - 52;
+      return `<path d="${wave(e, top)} V${top ? 0 : H} H0Z" fill="#a39a6d"/><path d="${wave(e, top)} V${top ? 0 : H} H0Z" fill="url(#leaf)"/><path d="${wave(e, top)}" fill="none" stroke="#7d7551" stroke-width="3"/>`;
+    };
+    const txt = (x, y, t, size = 30) => `<text x="${x}" y="${y}" font-family="Luminari,Papyrus,'Uncial Antiqua','Palatino Linotype',Georgia,serif" font-size="${size}" fill="${ln}" opacity=".92" letter-spacing="1.5">${t}</text>`;
+    let s = `<defs>
+      <pattern id="weave" width="4" height="4" patternUnits="userSpaceOnUse"><path d="M0 .5H4M.5 0V4" stroke="#8a7650" stroke-width=".55" opacity=".26"/></pattern>
+      <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse"><rect width="7" height="7" fill="#c9b68a"/><path d="M0 0 L7 7 M7 0 L0 7" stroke="#6d5a3a" stroke-width="1.2"/></pattern>
+      <pattern id="leaf" width="26" height="40" patternUnits="userSpaceOnUse"><path d="M13 38 V8 M13 28 Q5 22 3 12 M13 28 Q21 22 23 12 M13 18 Q8 14 7 8 M13 18 Q18 14 19 8" fill="none" stroke="#d8cc98" stroke-width="1.6" stroke-linecap="round" opacity=".75"/></pattern>
+      <radialGradient id="vig" cx=".5" cy=".5" r=".8"><stop offset=".6" stop-color="#5a4426" stop-opacity="0"/><stop offset="1" stop-color="#5a4426" stop-opacity=".34"/></radialGradient>
+      <linearGradient id="seam" x1="0" x2="1"><stop offset="0" stop-color="#6d5a3a" stop-opacity="0"/><stop offset=".5" stop-color="#6d5a3a" stop-opacity=".3"/><stop offset="1" stop-color="#fff8e0" stop-opacity=".25"/></linearGradient>
+      <filter id="stain"><feTurbulence type="fractalNoise" baseFrequency=".006 .01" numOctaves="4" seed="9"/><feColorMatrix values="0 0 0 0 .5  0 0 0 0 .38  0 0 0 0 .2  0 0 0 1.1 -.4"/></filter>
+      <filter id="wool" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".05" numOctaves="2" seed="2" result="w"/><feDisplacementMap in="SourceGraphic" in2="w" scale="2.5" result="d"/>
+        <feTurbulence type="fractalNoise" baseFrequency=".7 .16" numOctaves="2" seed="5"/><feColorMatrix values="0 0 0 0 .2  0 0 0 0 .12  0 0 0 0 .05  0 0 0 -2.4 1.3"/><feComposite in2="d" operator="in" result="t"/><feMerge><feMergeNode in="d"/><feMergeNode in="t"/></feMerge></filter></defs>
+      <rect width="${W}" height="${H}" fill="${v("--sky1")}"/><rect width="${W}" height="${H}" filter="url(#stain)" opacity=".5"/><rect width="${W}" height="${H}" fill="url(#weave)"/>
+      <g>${[330, 1010].map(x => `<rect x="${x}" width="14" height="${H}" fill="url(#seam)"/>`).join("")}<rect y="610" width="${W}" height="10" fill="#6d5a3a" opacity=".08"/></g><g filter="url(#wool)">`;
+    s += band(true) + band(false);
+    s += `<g transform="translate(1320 200)"><path d="M0 0 Q90 -24 260 -78 Q120 6 40 38Z" fill="${wool[1]}" ${st}/><path d="M0 0 Q70 -12 180 -52" fill="none" stroke="${wool[0]}" stroke-width="6" stroke-linecap="round"/><path d="M10 14 Q80 0 190 -20" fill="none" stroke="${wool[2]}" stroke-width="5" stroke-linecap="round"/><circle r="28" fill="${wool[0]}" ${st}/><circle r="11" fill="${wool[1]}" ${st}/></g>`;
+    const base = H - 74;
+    s += man(110, base, 1.25, wool[0], wool[2]);
+    s += horse(450, base, 1.15, wool[1], wool[0], wool[3], false) + tree(690, base, .9, wool[2]) + horse(930, base, 1.15, wool[3], wool[2], wool[0], false);
+    s += flames(1130, base, 470, 130, 0) + dog(1250, base, 1.45) + flames(1190, base + 2, 410, 56, 2) + flames(0, base, 60, 60, 1);
+    s += txt(1240, 470, "Thys be fyne", 34) + txt(70, 330, "Good morrow, thou art early.", 24) + txt(1230, 305, "Isti mirant stella", 24);
+    return s + `</g><rect width="${W}" height="${H}" fill="url(#vig)"/>`;
   },
   pond(c) {   // no drawn artwork on purpose: this theme is the video (assets/pond-*.mp4); without one you just get dark water-green
     const { v, W, H } = c;
